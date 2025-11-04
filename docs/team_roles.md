@@ -1,5 +1,5 @@
 # Team Roles
-- Andreii — Part 1 (Constraints)
+- Andrii — Part 1 (Constraints)
 - Samuel — Part 2 (Triggers)
 - Krishma — Part 3 (Views)
 - Nadya — Part 4 (Functions)
