@@ -1,27 +1,26 @@
-# 🎬 SQL Week 2 Project – Movie Database
+# SQL Week 2 Project – Movie Database
 
-## 📖 Overview
+##  Overview
 This repository contains our **SQL Week 2 Group Project**, focused on building and managing a **Movie Database** system using advanced SQL concepts such as **relationships**, **constraints**, **triggers**, **views**, **functions**, **analytical queries**, and **reports**.
 
 Each team member is responsible for one key section of the project.  
-The goal is to demonstrate solid database design, automation with triggers, reusable SQL logic with functions, and insightful data analytics through queries and reports.
 
 ---
 
-## 👥 Team Members & Roles
+##  Team Members & Roles
 
 | Member | Git Branch | Part | Role Description |
 |:--------|:-------------|:------|:----------------|
-| 🎓 **Andreii** | `feature/constraints` | **Part 1 – Relationships & Constraints** | Create and enforce all database relationships, foreign keys, and validation rules. |
-| ⚙️ **Samuel** | `feature/triggers` | **Part 2 – Triggers** | Automate database actions and enforce logic integrity (rating updates, deletions, etc.). |
-| 🧩 **Krishma** | `feature/views` | **Part 3 – Views** | Create summarized and analytical database views for easy data access. |
-| 🧠 **Nadya** | `feature/functions` | **Part 4 – Stored Functions** | Develop reusable SQL functions for retrieving calculated or specific information. |
-| 🧮 **Nelson (Project Manager)** | `feature/analytical` | **Part 5 – Analytical Queries** | Build advanced analytical queries to explore and analyze data trends. |
-| 📈 **Abanoub** | `feature/reports` | **Part 6 – Reports (Summary Queries)** | Create final summary reports combining data across multiple tables. |
+|  **Andrii** | `feature/constraints` | **Part 1 – Relationships & Constraints** | Create and enforce all database relationships, foreign keys, and validation rules. |
+|  **Samuel** | `feature/triggers` | **Part 2 – Triggers** | Automate database actions and enforce logic integrity (rating updates, deletions, etc.). |
+|  **Krishma** | `feature/views` | **Part 3 – Views** | Create summarized and analytical database views for easy data access. |
+|  **Nadya** | `feature/functions` | **Part 4 – Stored Functions** | Develop reusable SQL functions for retrieving calculated or specific information. |
+|  **Nelson (Project Manager)** | `feature/analytical` | **Part 5 – Analytical Queries** | Build advanced analytical queries to explore and analyze data trends. |
+|  **Abanoub** | `feature/reports` | **Part 6 – Reports (Summary Queries)** | Create final summary reports combining data across multiple tables. |
 
 ---
 
-## 🧭 Repository Structure
+##  Repository Structure
 
 ```
 sql-week2-project/
@@ -55,7 +54,7 @@ sql-week2-project/
 
 ---
 
-## ⚙️ Run Order (Execution Sequence)
+##  Run Order (Execution Sequence)
 
 Run the SQL files in this exact order:
 
@@ -83,9 +82,9 @@ Or use `tests/test_runner.sql` in this repo.
 
 ---
 
-## 🧩 Task Breakdown and Expectations
+##  Task Breakdown and Expectations
 
-### 🟢 Part 1 – Relationships & Constraints (Andreii)
+###  Part 1 – Relationships & Constraints (Andrii)
 - Add all **foreign keys** (`ON DELETE CASCADE` / `SET NULL`)
 - Add **CHECK** constraints:  
   - `rating BETWEEN 0 AND 10`  
@@ -95,14 +94,14 @@ Or use `tests/test_runner.sql` in this repo.
 - Enforce **NOT NULL** and valid foreign keys
 - Validate constraints with `tests/validation_queries.sql`
 
-### 🟠 Part 2 – Triggers (Samuel)
+###  Part 2 – Triggers (Samuel)
 - `AFTER INSERT/UPDATE/DELETE` on reviews → recompute movie’s average rating + review_count  
 - `BEFORE INSERT` on reviews → validate stars between 1–5  
 - `BEFORE DELETE` on movies → prevent deleting movies with linked reviews/actsin  
 - Optional: logging trigger to track activity  
 - Include commented examples for testing
 
-### 🟡 Part 3 – Views (Krishma)
+###  Part 3 – Views (Krishma)
 - Create:
   - `view_movie_summary`
   - `view_actor_summary`
@@ -111,12 +110,12 @@ Or use `tests/test_runner.sql` in this repo.
 - Use joins and aggregations
 - Add `DROP VIEW IF EXISTS` before each create statement
 
-### 🧠 Part 4 – Stored Functions (Nadya)
+###  Part 4 – Stored Functions (Nadya)
 - `get_actor_avg_rating(actor_id)` → return FLOAT  
 - `get_genre_top_movie(genre_name)` → return TABLE or TEXT (depending on dialect)  
 - Include **test SELECTs** for each function  
 
-### 🔴 Part 5 – Analytical Queries (Nelson)
+###  Part 5 – Analytical Queries (Nelson)
 - 10–12 queries covering:
   - Top-rated movies  
   - Actors per genre  
@@ -126,7 +125,7 @@ Or use `tests/test_runner.sql` in this repo.
   - Most active reviewers, etc.  
 - Add `-- comment` above each query explaining its goal
 
-### 🟣 Part 6 – Reports (Abanoub)
+###  Part 6 – Reports (Abanoub)
 - Write 3–5 report-style queries:
   - “Top 3 genres by total reviews”
   - “Top 5 actors by appearances”
@@ -136,7 +135,7 @@ Or use `tests/test_runner.sql` in this repo.
 
 ---
 
-## 🔀 Branching Strategy
+##  Branching Strategy
 
 | Branch | Purpose |
 |:--------|:----------|
@@ -154,7 +153,7 @@ git push origin feature/views
 
 ---
 
-## 🧾 Pull Request Workflow
+##  Pull Request Workflow
 
 Each team member:
 1. Works in their feature branch  
@@ -175,7 +174,7 @@ Each team member:
 
 ---
 
-## 🧪 Testing
+## Testing
 Use `tests/test_data.sql` and `tests/validation_queries.sql` to verify:
 - Constraints reject invalid data  
 - Triggers update correctly  
@@ -184,7 +183,7 @@ Use `tests/test_data.sql` and `tests/validation_queries.sql` to verify:
 
 ---
 
-## 🧱 Database Schema Overview
+##  Database Schema Overview
 The database models a **movie ecosystem** with:
 - **Movies**
 - **Directors**
@@ -195,7 +194,7 @@ The database models a **movie ecosystem** with:
 
 ---
 
-## 🧩 Tools & Dialect
+##  Tools & Dialect
 Recommended SQL Dialect: **PostgreSQL** (also compatible with MySQL with syntax changes).  
 SQLite has limitations for stored functions; triggers are supported with some differences.
 
@@ -204,4 +203,5 @@ SQLite has limitations for stored functions; triggers are supported with some di
 ## 💬 Credits
 Created collaboratively by the **SQL Week 2 Team**  
 Project Manager: Nelson
+Team: Andrii, Samuel, Krishma, Nadya, Abanoub
 ``
