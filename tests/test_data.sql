@@ -1,0 +1,3 @@
+-- tests/test_data.sql
+-- Optional: additional seed data for testing edge cases.
+-- Add more inserts as needed.
