@@ -52,3 +52,22 @@ BEFORE DELETE
 ON public.movies
 FOR EACH ROW
 EXECUTE FUNCTION check_movie_delete_protection();
+
+--- ТРИГЕР 3: ВАЛІДАЦІЯ ДІАПАЗОНУ РЕЙТИНГУ ---
+
+CREATE OR REPLACE FUNCTION check_rating_range()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.rating IS NOT NULL AND (NEW.rating < 1 OR NEW.rating > 5) THEN
+        RAISE EXCEPTION 'Validation error: Rating (%) must be between 1 and 5.', NEW.rating;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER enforce_rating_validation
+BEFORE INSERT OR UPDATE OF rating
+ON public.rentings
+FOR EACH ROW
+EXECUTE FUNCTION check_rating_range();
