@@ -1,17 +1,17 @@
 # SQL Week 2 Project – Movie Database
 
-##  Overview
-This repository contains our **SQL Week 2 Group Project**, focused on building and managing a **Movie Database** system using advanced SQL concepts such as **relationships**, **constraints**, **triggers**, **views**, **functions**, **analytical queries**, and **reports**.
+## Overview
+This repository contains our **SQL Week 2 Group Project**.
 
 Each team member is responsible for one key section of the project.  
 
 ---
 
-##  Team Members & Roles
+## Team Members & Roles
 
 | Member | Git Branch | Part | Role Description |
 |:--------|:-------------|:------|:----------------|
-|  **Andrii** | `feature/constraints` | **Part 1 – Relationships & Constraints** | Create and enforce all database relationships, foreign keys, and validation rules. |
+|  **Andreii** | `feature/constraints` | **Part 1 – Relationships & Constraints** | Create and enforce all database relationships, foreign keys, and validation rules. |
 |  **Samuel** | `feature/triggers` | **Part 2 – Triggers** | Automate database actions and enforce logic integrity (rating updates, deletions, etc.). |
 |  **Krishma** | `feature/views` | **Part 3 – Views** | Create summarized and analytical database views for easy data access. |
 |  **Nadya** | `feature/functions` | **Part 4 – Stored Functions** | Develop reusable SQL functions for retrieving calculated or specific information. |
@@ -33,9 +33,9 @@ sql-week2-project/
 │   └── sample_data.sql
 │
 ├── features/
+│   ├── functions.sql
 │   ├── triggers.sql
 │   ├── views.sql
-│   ├── functions.sql
 │
 ├── queries/
 │   ├── analytical_queries.sql
@@ -54,37 +54,43 @@ sql-week2-project/
 
 ---
 
-##  Run Order (Execution Sequence)
+##  Run Order (Execution Sequence for Supabase / PostgreSQL)
 
-Run the SQL files in this exact order:
+Run the SQL files in this exact order for best compatibility:
 
 1. `schema/create_tables.sql`  
 2. `schema/constraints.sql`  
-3. `features/triggers.sql`  
-4. `features/views.sql`  
-5. `features/functions.sql`  
-6. `queries/analytical_queries.sql`  
-7. `queries/reports.sql`
+3. `schema/sample_data.sql`  
+4. `features/functions.sql`  
+5. `features/triggers.sql`  
+6. `features/views.sql`  
+7. `queries/analytical_queries.sql`  
+8. `queries/reports.sql`  
+9. `tests/test_data.sql`  
+10. `tests/validation_queries.sql`  
+11. `tests/test_runner.sql`
 
-You can automate the process with (example for SQLite CLI):
+You can execute them sequentially in Supabase’s SQL Editor, or via CLI:
 
-```sql
-.read schema/create_tables.sql
-.read schema/constraints.sql
-.read features/triggers.sql
-.read features/views.sql
-.read features/functions.sql
-.read queries/analytical_queries.sql
-.read queries/reports.sql
+```bash
+psql -f schema/create_tables.sql
+psql -f schema/constraints.sql
+psql -f schema/sample_data.sql
+psql -f features/functions.sql
+psql -f features/triggers.sql
+psql -f features/views.sql
+psql -f queries/analytical_queries.sql
+psql -f queries/reports.sql
+psql -f tests/test_runner.sql
 ```
 
-Or use `tests/test_runner.sql` in this repo.
+Or directly inside Supabase’s SQL Editor by copying each block in sequence.
 
 ---
 
 ##  Task Breakdown and Expectations
 
-###  Part 1 – Relationships & Constraints (Andrii)
+###  Part 1 – Relationships & Constraints (Andreii)
 - Add all **foreign keys** (`ON DELETE CASCADE` / `SET NULL`)
 - Add **CHECK** constraints:  
   - `rating BETWEEN 0 AND 10`  
@@ -92,14 +98,22 @@ Or use `tests/test_runner.sql` in this repo.
   - `release_year >= 1900`
 - `UNIQUE (title, release_year)`
 - Enforce **NOT NULL** and valid foreign keys
-- Validate constraints with `tests/validation_queries.sql`
+- Validate constraints using `tests/validation_queries.sql`
+-  *PostgreSQL Tip:* Wrap constraint creation in a `DO $$` block if you need an `IF NOT EXISTS` guard (Postgres doesn’t support it directly).
+
+---
 
 ###  Part 2 – Triggers (Samuel)
-- `AFTER INSERT/UPDATE/DELETE` on reviews → recompute movie’s average rating + review_count  
+- `AFTER INSERT/UPDATE/DELETE` on reviews → recompute movie’s average rating + review count  
 - `BEFORE INSERT` on reviews → validate stars between 1–5  
-- `BEFORE DELETE` on movies → prevent deleting movies with linked reviews/actsin  
+- `BEFORE DELETE` on movies → prevent deleting movies with linked reviews or acts_in  
 - Optional: logging trigger to track activity  
 - Include commented examples for testing
+-  *PostgreSQL Syntax:*  
+  - Use `LANGUAGE plpgsql`  
+  - Use `EXECUTE FUNCTION` (not `EXECUTE PROCEDURE`)  
+
+---
 
 ###  Part 3 – Views (Krishma)
 - Create:
@@ -110,20 +124,28 @@ Or use `tests/test_runner.sql` in this repo.
 - Use joins and aggregations
 - Add `DROP VIEW IF EXISTS` before each create statement
 
+---
+
 ###  Part 4 – Stored Functions (Nadya)
-- `get_actor_avg_rating(actor_id)` → return FLOAT  
-- `get_genre_top_movie(genre_name)` → return TABLE or TEXT (depending on dialect)  
-- Include **test SELECTs** for each function  
+- `get_actor_avg_rating(actor_id)` → return `NUMERIC` (or `FLOAT`)  
+- `get_genre_top_movie(genre_name)` → return `TABLE(movie_id, title, rating)`  
+- Add **LANGUAGE plpgsql** and mark as `STABLE`  
+- Include test SELECTs for each function  
+
+---
 
 ###  Part 5 – Analytical Queries (Nelson)
-- 10–12 queries covering:
+- 10–12 analytical queries covering:
   - Top-rated movies  
   - Actors per genre  
   - Directors with high averages  
   - Genres above global average  
   - Actors never in movies below rating 5  
   - Most active reviewers, etc.  
-- Add `-- comment` above each query explaining its goal
+- Add a `-- goal:` comment above each query explaining its purpose  
+- Ensure every query runs independently after schema + features are executed  
+
+---
 
 ###  Part 6 – Reports (Abanoub)
 - Write 3–5 report-style queries:
@@ -132,10 +154,11 @@ Or use `tests/test_runner.sql` in this repo.
   - “Director performance by average rating”
   - “Movies with reviews after 2020”
   - “Genres by average duration”
+- Keep all results cleanly formatted with clear column names  
 
 ---
 
-##  Branching Strategy
+## Branching Strategy
 
 | Branch | Purpose |
 |:--------|:----------|
@@ -153,7 +176,7 @@ git push origin feature/views
 
 ---
 
-##  Pull Request Workflow
+## 🧾 Pull Request Workflow
 
 Each team member:
 1. Works in their feature branch  
@@ -161,7 +184,7 @@ Each team member:
 3. Opens a **Pull Request** to the `dev` branch  
 4. The PM reviews and merges once it passes testing
 
-**PR Template (auto-applies in this repo):**
+**PR Template:**
 ```markdown
 ### What changed?
 - Describe updates or new SQL components added.
@@ -174,16 +197,25 @@ Each team member:
 
 ---
 
-## Testing
+##  Testing
+
 Use `tests/test_data.sql` and `tests/validation_queries.sql` to verify:
 - Constraints reject invalid data  
 - Triggers update correctly  
 - Views/functions return valid results  
 - Queries produce expected outputs  
 
+Each SQL file should include at least **one commented test snippet**  
+(e.g., an example `INSERT` and `SELECT` to demonstrate results).
+
+You can run all tests together using:
+```sql
+\i tests/test_runner.sql
+```
+
 ---
 
-##  Database Schema Overview
+## Database Schema Overview
 The database models a **movie ecosystem** with:
 - **Movies**
 - **Directors**
@@ -195,13 +227,20 @@ The database models a **movie ecosystem** with:
 ---
 
 ##  Tools & Dialect
-Recommended SQL Dialect: **PostgreSQL** (also compatible with MySQL with syntax changes).  
-SQLite has limitations for stored functions; triggers are supported with some differences.
+
+Primary dialect: **PostgreSQL (Supabase)**  
+
+### Supabase/PostgreSQL Guidelines
+- Use `LANGUAGE plpgsql` for all trigger and function bodies  
+- Use `EXECUTE FUNCTION` (Postgres ≥ 14 syntax)  
+- For idempotent scripts, add `DROP IF EXISTS` before `CREATE`  
+- Run inside **Supabase SQL Editor** or using `psql` CLI  
+
+*(SQLite/MySQL can be adapted, but this project is tested and graded on PostgreSQL via Supabase.)*
 
 ---
 
-## 💬 Credits
-Created collaboratively by the **SQL Week 2 Team**  
-Project Manager: Nelson
-Team: Andrii, Samuel, Krishma, Nadya, Abanoub
-``
+##  Credits
+Created collaboratively by the **SQL Week 2 Team**  Andrii, Nadya, Krishma, Samuel, Abanoub
+**Project Manager:** Nelson  
+Powered by **Supabase** + **PostgreSQL**
