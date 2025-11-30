@@ -1,5 +1,5 @@
 # Movie-Database
-This repository contains our **SQL Week 2 Group Project**, focused on building and managing a **Movie Database** 
+This repository contains our **Team Group 1 Project**, focused on building and managing a **Movie Database** 
 
 Each team member is responsible for one key section of the project.  
 The goal is to demonstrate solid database design, automation with triggers, reusable SQL logic with functions, and insightful data analytics through queries and reports.
