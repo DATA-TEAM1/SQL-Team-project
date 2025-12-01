@@ -88,9 +88,38 @@ def get_all_actors():
     finally:
         if conn is not None:
             conn.close()
+            
+def fetch_customers():
+    connection = None
+    try:
+        # Get a connection from the pool
+        connection = get_connection()
+        cursor = connection.cursor()
 
+        # Execute query
+        cursor.execute("SELECT * FROM customers;")
+        rows = cursor.fetchall()
+
+        # Display results
+        if rows:
+            for row in rows:
+                print(row)
+        else:
+            print("No customers found.")
+
+        # Close cursor
+        cursor.close()
+
+    except Exception as e:
+        print(f"Error fetching customers: {e}")
+
+    finally:
+        # Return the connection to the pool
+        if connection:
+            connection_pool.putconn(connection)
 
 if __name__ == "__main__":
     # Requirement: feature/actors must only run actors function
     get_all_actors()
     fetch_actsin()
+    fetch_customers()
