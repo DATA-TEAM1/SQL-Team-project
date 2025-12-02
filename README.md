@@ -103,13 +103,39 @@ sslmode=require
 
 This file shows the required variables without exposing real credentials.
 
-## How to Run the Scripts
+# Server Script — Python Viewer for Supabase Database
+Overview
+server.py is a Python command-line tool that connects to a Supabase PostgreSQL database and displays the contents of several tables and one view. The script loads database credentials from a local .env file and uses a menu interface to let the user choose which dataset to print.
 
-Run from the root directory:
+Features
+Secure connection to Supabase PostgreSQL using environment variables
+Helper function to fetch rows with RealDictCursor
+Clean connection handling with automatic close
 
-Movies:python feature_movies/server.py
-Rentings:python feature_rentings/server.py
+Menu-based CLI to display:
 
-Each script loads the environment variables, connects to Supabase, and prints
-the table data in the console.
+Actors
+Actsin
+Customers
+Log Activity
+Movies
+Rentings
+View: view_actor_summary
+
+Environment Variables
+
+
+Running the Script:
+
+Install requirements:
+pip install psycopg2 python-dotenv
+
+Start the script:
+python server.py
+
+You will see a menu where you can select which table or view to display.
+
+Purpose in the Project
+
+This script is part of the SQL Team Project and is used to quickly inspect database content from Python, without manually writing SQL queries. It also serves as a base for future Python integrations.
 
