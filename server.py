@@ -1,4 +1,5 @@
 import os
+from typing import Any, Dict, List
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
@@ -29,97 +30,150 @@ def get_connection():
     )
     return conn
 
-
-def fetch_actsin():
-    try:
-        # Connect to your PostgreSQL database
-        connection = get_connection()
-        
-        cursor = connection.cursor()
-        
-        # Query to fetch data from the actsin table
-        fetch_query = "SELECT * FROM actsin;"
-        
-        cursor.execute(fetch_query)
-        
-        # Fetch all rows from the executed query
-        results = cursor.fetchall()
-        
-        # Display the results
-        for row in results:
-            print(row)
-    
-    except Exception as error:
-        print(f"Error fetching data from PostgreSQL table: {error}")
-    
-    finally:
-        # Close the database connection and cursor
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
-
-def get_all_actors():
+# ---------------------------------------------------------
+# GENERIC FETCH FUNCTION
+# ---------------------------------------------------------
+def _fetch_all(query: str) -> List[Dict[str, Any]]:
     """
-    Fetch and display all rows from the 'actors' table.
+    Executes a SELECT query and returns all rows as a list of dicts.
     """
-    query = "SELECT * FROM public.actors;"
-    table_name = "actors"
-
     conn = None
     try:
         conn = get_connection()
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(query)
             rows = cur.fetchall()
-
-            print(f"\n=== {table_name.upper()} ===")
-            print(f"Total rows: {len(rows)}")
-
-            for row in rows:
-                print(row)
-
             return rows
-
     except Exception as e:
-        print(f"Error while fetching data from '{table_name}': {e}")
+        print(f"Error while fetching data: {e}")
         return []
-
     finally:
-        if conn is not None:
+        if conn:
             conn.close()
-            
+
+
+def _print_rows(title: str, rows: List[Dict[str, Any]]):
+    """Pretty print results."""
+    print(f"\n===== {title} =====")
+    if not rows:
+        print("No data found.")
+        return
+    for i, row in enumerate(rows, start=1):
+        print(f"{i}. {row}")
+
+
+# ---------------------------------------------------------
+# TABLE FETCHERS
+# ---------------------------------------------------------
+def fetch_actors():
+    rows = _fetch_all("SELECT * FROM public.actors;")
+    _print_rows("ACTORS", rows)
+    return rows
+
+
+def fetch_actsin():
+    rows = _fetch_all("SELECT * FROM public.actsin;")
+    _print_rows("ACTSIN", rows)
+    return rows
+
+
 def fetch_customers():
-    connection = None
-    try:
-        # Get a connection from the pool
-        connection = get_connection()
-        cursor = connection.cursor()
+    rows = _fetch_all("SELECT * FROM public.customers;")
+    _print_rows("CUSTOMERS", rows)
+    return rows
 
-        # Execute query
-        cursor.execute("SELECT * FROM customers;")
-        rows = cursor.fetchall()
 
-        # Display results
-        if rows:
-            for row in rows:
-                print(row)
-        else:
-            print("No customers found.")
+def fetch_log_activity():
+    rows = _fetch_all("SELECT * FROM public.log_activity;")
+    _print_rows("LOG_ACTIVITY", rows)
+    return rows
 
-        # Close cursor
-        cursor.close()
 
-    except Exception as e:
-        print(f"Error fetching customers: {e}")
+def fetch_movies():
+    rows = _fetch_all("SELECT * FROM public.movies;")
+    _print_rows("MOVIES", rows)
+    return rows
 
-    finally:
-        # Return the connection to the pool
-        if connection:
-            connection_pool.putconn(connection)
+
+def fetch_rentings():
+    rows = _fetch_all("SELECT * FROM public.rentings;")
+    _print_rows("RENTINGS", rows)
+    return rows
+
+
+def fetch_view_actor_summary():
+    rows = _fetch_all("SELECT * FROM public.view_actor_summary;")
+    _print_rows("VIEW_ACTOR_SUMMARY", rows)
+    return rows
+
+
+# ---------------------------------------------------------
+# PRINTER FUNCTIONS (Separated per table)
+# ---------------------------------------------------------
+def print_database_actors():
+    fetch_actors()
+
+
+def print_database_actsin():
+    fetch_actsin()
+
+
+def print_database_customers():
+    fetch_customers()
+
+
+def print_database_log_activity():
+    fetch_log_activity()
+
+
+def print_database_movies():
+    fetch_movies()
+
+
+def print_database_rentings():
+    fetch_rentings()
+
+
+def print_database_view_actor_summary():
+    fetch_view_actor_summary()
+
+
+
+# ---------------------------------------------------------
+# MENU
+# ---------------------------------------------------------
+def show_menu():
+    print("\n=== SELECT DATABASE TO DISPLAY ===")
+    print("1. Actors")
+    print("2. Actsin")
+    print("3. Customers")
+    print("4. Log Activity")
+    print("5. Movies")
+    print("6. Rentings")
+    print("7. View Actor Summary")
+    print("0. Exit")
+
 
 if __name__ == "__main__":
-    # Requirement: feature/actors must only run actors function
-    get_all_actors()
-    fetch_actsin()
-    fetch_customers()
+    show_menu()
+    choice = input("\nEnter your choice: ")
+
+    if choice == "1":
+        print_database_actors()
+    elif choice == "2":
+        print_database_actsin()
+    elif choice == "3":
+        print_database_customers()
+    elif choice == "4":
+        print_database_log_activity()
+    elif choice == "5":
+        print_database_movies()
+    elif choice == "6":
+        print_database_rentings()
+    elif choice == "7":
+        print_database_view_actor_summary()
+    elif choice == "0":
+        print("Exiting...")
+    else:
+        print("Invalid option, try again.")
+
