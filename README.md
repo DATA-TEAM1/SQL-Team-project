@@ -58,34 +58,6 @@ This project includes two simple Python scripts that connect to a Supabase
 PostgreSQL database using the psycopg2 library. Each script belongs to a
 different feature branch and retrieves data from a specific table.
 
----
-
-### Feature: Movies (feature/movies)
-
-Location: feature_movies/server.py
-Purpose:
-
-- Connects to the database  
-- Fetches all rows from the movies table  
-- Prints the results in the terminal  
-
-Main function: get_all_movies()
-
----
-
-### Feature: Rentings (feature/rentings)
-
-Location: feature_rentings/server.py
-Purpose:
-
-- Connects to the database  
-- Fetches all rows from the rentings table  
-- Displays all rows in the terminal  
-
-Main function: get_all_rentings()
-
----
-
 ## Environment Variables
 
 Both scripts require a local `.env` file with the database credentials.
@@ -104,6 +76,7 @@ sslmode=require
 This file shows the required variables without exposing real credentials.
 
 # Server Script — Python Viewer for Supabase Database
+
 Overview
 server.py is a Python command-line tool that connects to a Supabase PostgreSQL database and displays the contents of several tables and one view. The script loads database credentials from a local .env file and uses a menu interface to let the user choose which dataset to print.
 
