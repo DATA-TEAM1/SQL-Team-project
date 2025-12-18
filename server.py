@@ -106,6 +106,24 @@ def fetch_view_actor_summary():
     _print_rows("VIEW_ACTOR_SUMMARY", rows)
     return rows
 
+# ---------------------------------------------------------
+# TASK 3 - WHERE CLAUSE
+# ---------------------------------------------------------
+def fetch_task3_movies_after_2015():
+    rows = _fetch_all("SELECT * FROM public.movies WHERE <MOVIE_YEAR_COLUMN> > 2015;")
+    _print_rows("TASK3_MOVIES_AFTER_2015", rows)
+    return rows
+
+def fetch_task3_customers_from_canada():
+    rows = _fetch_all("SELECT * FROM public.customers WHERE <CUSTOMER_COUNTRY_COLUMN> = 'Canada';")
+    _print_rows("TASK3_CUSTOMERS_FROM_CANADA", rows)
+    return rows
+
+def fetch_task3_rentings_rating_ge_4():
+    rows = _fetch_all("SELECT * FROM public.rentings WHERE <RENTING_RATING_COLUMN> >= 4;")
+    _print_rows("TASK3_RENTINGS_RATING_GE_4", rows)
+    return rows
+
 
 # ---------------------------------------------------------
 # PRINTER FUNCTIONS (Separated per table)
@@ -138,6 +156,17 @@ def print_database_view_actor_summary():
     fetch_view_actor_summary()
 
 
+def print_task3_movies_after_2015():
+    fetch_task3_movies_after_2015()
+
+def print_task3_customers_from_canada():
+    fetch_task3_customers_from_canada()
+
+def print_task3_rentings_rating_ge_4():
+    fetch_task3_rentings_rating_ge_4()
+
+
+
 
 # ---------------------------------------------------------
 # MENU
@@ -151,6 +180,10 @@ def show_menu():
     print("5. Movies")
     print("6. Rentings")
     print("7. View Actor Summary")
+    print("8. Task 3 - Movies after 2015")
+    print("9. Task 3 - Customers from Canada")
+    print("10. Task 3 - Rentings rating >= 4")
+
     print("0. Exit")
 
 
@@ -172,6 +205,12 @@ if __name__ == "__main__":
         print_database_rentings()
     elif choice == "7":
         print_database_view_actor_summary()
+    elif choice == "8":
+        print_task3_movies_after_2015()
+    elif choice == "9":
+        print_task3_customers_from_canada()
+    elif choice == "10":
+        print_task3_rentings_rating_ge_4()
     elif choice == "0":
         print("Exiting...")
     else:
