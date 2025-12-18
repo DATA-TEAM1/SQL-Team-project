@@ -1,26 +1,21 @@
 import os
-from typing import Any, Dict, List
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
+from typing import List, Dict, Any
 
-# Load environment variables from .env
 load_dotenv()
+
+USER = os.getenv("USER")
+PASSWORD = os.getenv("PASSWORD")
+HOST = os.getenv("HOST")
+PORT = os.getenv("PORT")
+DBNAME = os.getenv("DBNAME")
+SSLMODE = os.getenv("SSLMODE", "require")
 
 
 def get_connection():
-    """
-    Open a connection to the Supabase Postgres database
-    using values stored in the .env file.
-    """
-    USER = os.getenv("user")
-    PASSWORD = os.getenv("password")
-    HOST = os.getenv("host")
-    PORT = os.getenv("port", "5432")
-    DBNAME = os.getenv("dbname")
-    SSLMODE = os.getenv("sslmode", "require")
-
-    conn = psycopg2.connect(
+    return psycopg2.connect(
         user=USER,
         password=PASSWORD,
         host=HOST,
@@ -28,7 +23,6 @@ def get_connection():
         dbname=DBNAME,
         sslmode=SSLMODE
     )
-    return conn
 
 # ---------------------------------------------------------
 # GENERIC FETCH FUNCTION
