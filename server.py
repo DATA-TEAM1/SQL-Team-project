@@ -27,6 +27,8 @@ def get_connection():
 # ---------------------------------------------------------
 # GENERIC FETCH FUNCTION
 # ---------------------------------------------------------
+
+
 def _fetch_all(query: str) -> List[Dict[str, Any]]:
     """
     Executes a SELECT query and returns all rows as a list of dicts.
@@ -103,18 +105,25 @@ def fetch_view_actor_summary():
 # ---------------------------------------------------------
 # TASK 3 - WHERE CLAUSE
 # ---------------------------------------------------------
+
+
 def fetch_task3_movies_after_2015():
-    rows = _fetch_all("SELECT * FROM public.movies WHERE <MOVIE_YEAR_COLUMN> > 2015;")
+    rows = _fetch_all(
+        "SELECT * FROM public.movies WHERE <MOVIE_YEAR_COLUMN> > 2015;")
     _print_rows("TASK3_MOVIES_AFTER_2015", rows)
     return rows
 
+
 def fetch_task3_customers_from_canada():
-    rows = _fetch_all("SELECT * FROM public.customers WHERE <CUSTOMER_COUNTRY_COLUMN> = 'Canada';")
+    rows = _fetch_all(
+        "SELECT * FROM public.customers WHERE <CUSTOMER_COUNTRY_COLUMN> = 'Canada';")
     _print_rows("TASK3_CUSTOMERS_FROM_CANADA", rows)
     return rows
 
+
 def fetch_task3_rentings_rating_ge_4():
-    rows = _fetch_all("SELECT * FROM public.rentings WHERE <RENTING_RATING_COLUMN> >= 4;")
+    rows = _fetch_all(
+        "SELECT * FROM public.rentings WHERE <RENTING_RATING_COLUMN> >= 4;")
     _print_rows("TASK3_RENTINGS_RATING_GE_4", rows)
     return rows
 
@@ -153,13 +162,13 @@ def print_database_view_actor_summary():
 def print_task3_movies_after_2015():
     fetch_task3_movies_after_2015()
 
+
 def print_task3_customers_from_canada():
     fetch_task3_customers_from_canada()
 
+
 def print_task3_rentings_rating_ge_4():
     fetch_task3_rentings_rating_ge_4()
-
-
 
 
 # ---------------------------------------------------------
@@ -210,3 +219,34 @@ if __name__ == "__main__":
     else:
         print("Invalid option, try again.")
 
+# Task 1 – Generic Function
+
+
+def run_query(cursor, query):
+    cursor.execute(query)
+    return cursor.fetchall()
+
+# Task 2 – SELECT queries
+# ...
+
+# Task 3 – WHERE
+# ...
+
+# Task 4 – Aggregations
+# ...
+
+# ============================
+# Task 5 – GROUP BY
+# ============================
+
+
+query_movies_per_genre = """
+SELECT genre, COUNT(*) 
+FROM movies
+GROUP BY genre;
+"""
+
+result = run_query(cursor, query_movies_per_genre)
+
+for row in result:
+    print(f"Genre: {row[0]} | Movie Count: {row[1]}")
