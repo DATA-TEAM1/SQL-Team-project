@@ -30,9 +30,6 @@ def get_connection():
 
 
 def _fetch_all(query: str) -> List[Dict[str, Any]]:
-    """
-    Executes a SELECT query and returns all rows as a list of dicts.
-    """
     conn = None
     try:
         conn = get_connection()
@@ -49,7 +46,6 @@ def _fetch_all(query: str) -> List[Dict[str, Any]]:
 
 
 def _print_rows(title: str, rows: List[Dict[str, Any]]):
-    """Pretty print results."""
     print(f"\n===== {title} =====")
     if not rows:
         print("No data found.")
@@ -58,9 +54,6 @@ def _print_rows(title: str, rows: List[Dict[str, Any]]):
         print(f"{i}. {row}")
 
 
-# ---------------------------------------------------------
-# TABLE FETCHERS
-# ---------------------------------------------------------
 def fetch_actors():
     rows = _fetch_all("SELECT * FROM public.actors;")
     _print_rows("ACTORS", rows)
@@ -128,9 +121,18 @@ def fetch_task3_rentings_rating_ge_4():
     return rows
 
 
-# ---------------------------------------------------------
-# PRINTER FUNCTIONS (Separated per table)
-# ---------------------------------------------------------
+def show_menu():
+    print("\n=== SELECT DATABASE TO DISPLAY ===")
+    print("1. Actors")
+    print("2. Actsin")
+    print("3. Customers")
+    print("4. Log Activity")
+    print("5. Movies")
+    print("6. Rentings")
+    print("7. View Actor Summary")
+    print("0. Exit")
+
+
 def print_database_actors():
     fetch_actors()
 
@@ -246,7 +248,7 @@ FROM movies
 GROUP BY genre;
 """
 
-result = run_query(cursor, query_movies_per_genre)
+result = run_query( cursor, query_movies_per_genre)
 
 for row in result:
     print(f"Genre: {row[0]} | Movie Count: {row[1]}")
