@@ -134,6 +134,26 @@ def fetch_task3_rentings_rating_ge_4():
 # ============================
 # Task 4 – Aggregation Functions
 # ============================
+def get_total_movies():
+    query = """
+    SELECT COUNT(movie_id) AS total_movies
+    FROM movies;
+    """
+    return run_query(query)
+
+def get_average_renting_price():
+    query = """
+    SELECT AVG(renting_price) AS average_renting_price
+    FROM movies;
+    """
+    return run_query(query)
+    
+def get_average_rating():
+    query = """
+    SELECT AVG(rating) AS average_rating
+    FROM rentings;
+    """
+    return run_query(query)
 
 # ============================
 # Task 5 – GROUP BY
