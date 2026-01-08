@@ -33,9 +33,7 @@ def _fetch_all(query: str) -> List[Dict[str, Any]]:
     try:
         conn = get_connection()
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(query)
-            rows = cur.fetchall()
-            return rows
+            return run_query(cur, query)   # ✅ now ALL queries go through run_query
     except Exception as e:
         print(f"Error while fetching data: {e}")
         return []
@@ -114,20 +112,17 @@ def get_all_actors(cursor):
 # ============================
 
 def fetch_task3_movies_after_2015():
-    rows = _fetch_all(
-        "SELECT * FROM public.movies WHERE <MOVIE_YEAR_COLUMN> > 2015;")
+    rows = _fetch_all("SELECT * FROM public.movies WHERE year_of_release > 2015;")
     _print_rows("TASK3_MOVIES_AFTER_2015", rows)
     return rows
 
 def fetch_task3_customers_from_canada():
-    rows = _fetch_all(
-        "SELECT * FROM public.customers WHERE <CUSTOMER_COUNTRY_COLUMN> = 'Canada';")
+    rows = _fetch_all("SELECT * FROM public.customers WHERE country = 'Canada';")
     _print_rows("TASK3_CUSTOMERS_FROM_CANADA", rows)
     return rows
 
 def fetch_task3_rentings_rating_ge_4():
-    rows = _fetch_all(
-        "SELECT * FROM public.rentings WHERE <RENTING_RATING_COLUMN> >= 4;")
+    rows = _fetch_all("SELECT * FROM public.rentings WHERE rating >= 4;")
     _print_rows("TASK3_RENTINGS_RATING_GE_4", rows)
     return rows
 
@@ -142,10 +137,56 @@ def fetch_task3_rentings_rating_ge_4():
 # ============================
 # Task 6 –  JOIN Queries
 # ============================
+def get_movies_with_avg_rating(cursor):
+    """
+    Task 6.1: Movie titles with their average rating.
+    """
+    query = """
+    SELECT
+      movie_id,
+      title,
+      avg_rating
+    FROM movies
+    ORDER BY avg_rating DESC NULLS LAST;
+    """
+    return run_query(cursor, query)
+
+def get_actors_with_movie_count(cursor):
+    """
+    Task 6.2: Number of movies each actor acted in.
+    """
+    query = """
+    SELECT
+      a.actor_id,
+      a.name AS actor_name,
+      COUNT(ac.movie_id) AS movie_count
+    FROM actors a
+    LEFT JOIN actsin ac ON ac.actor_id = a.actor_id
+    GROUP BY a.actor_id, a.name
+    ORDER BY movie_count DESC;
+    """
+    return run_query(cursor, query)
+
+def get_customers_with_rentals_count(cursor):
+    """
+    Task 6.3: Number of movies rented by each customer.
+    """
+    query = """
+    SELECT
+      c.customer_id,
+      c.name AS customer_name,
+      COUNT(r.renting_id) AS rentals_count
+    FROM customers c
+    LEFT JOIN rentings r ON r.customer_id = c.customer_id
+    GROUP BY c.customer_id, c.name
+    ORDER BY rentals_count DESC;
+    """
+    return run_query(cursor, query)
 
 # ============================
 # Task 7 –  HAVING Clause
 # ============================
+
 def get_genres_with_more_than_3_movies(cursor):
     query = """
     SELECT
