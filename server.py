@@ -34,7 +34,7 @@ def _fetch_all(query: str) -> List[Dict[str, Any]]:
     try:
         conn = get_connection()
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            return run_query(cur, query)   # ✅ now ALL queries go through run_query
+            return run_query(cur, query)   
     except Exception as e:
         print(f"Error while fetching data: {e}")
         return []
@@ -216,6 +216,7 @@ def get_number_of_rentings_per_movie(cursor):
 # ============================
 # Task 6 –  JOIN Queries
 # ============================
+    
 def get_movies_with_avg_rating(cursor):
     """
     Task 6.1: Movie titles with their average rating.
@@ -266,10 +267,6 @@ def get_customers_with_rentals_count(cursor):
 # Task 7 –  HAVING Clause
 # ============================
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1f499e8203eb1da1028bc3f1368d278fc4323e14
 def get_genres_with_more_than_3_movies(cursor):
     query = """
     SELECT
