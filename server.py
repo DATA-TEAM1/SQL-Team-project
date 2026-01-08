@@ -28,6 +28,7 @@ def get_connection():
 # GENERIC FETCH FUNCTION
 # -------------------------------------------------------
 
+
 def _fetch_all(query: str) -> List[Dict[str, Any]]:
     conn = None
     try:
@@ -41,6 +42,7 @@ def _fetch_all(query: str) -> List[Dict[str, Any]]:
         if conn:
             conn.close()
 
+
 def _print_rows(title: str, rows: List[Dict[str, Any]]):
     print(f"\n===== {title} =====")
     if not rows:
@@ -49,35 +51,42 @@ def _print_rows(title: str, rows: List[Dict[str, Any]]):
     for i, row in enumerate(rows, start=1):
         print(f"{i}. {row}")
 
+
 def fetch_actors():
     rows = _fetch_all("SELECT * FROM public.actors;")
     _print_rows("ACTORS", rows)
     return rows
+
 
 def fetch_actsin():
     rows = _fetch_all("SELECT * FROM public.actsin;")
     _print_rows("ACTSIN", rows)
     return rows
 
+
 def fetch_customers():
     rows = _fetch_all("SELECT * FROM public.customers;")
     _print_rows("CUSTOMERS", rows)
     return rows
+
 
 def fetch_log_activity():
     rows = _fetch_all("SELECT * FROM public.log_activity;")
     _print_rows("LOG_ACTIVITY", rows)
     return rows
 
+
 def fetch_movies():
     rows = _fetch_all("SELECT * FROM public.movies;")
     _print_rows("MOVIES", rows)
     return rows
 
+
 def fetch_rentings():
     rows = _fetch_all("SELECT * FROM public.rentings;")
     _print_rows("RENTINGS", rows)
     return rows
+
 
 def fetch_view_actor_summary():
     rows = _fetch_all("SELECT * FROM public.view_actor_summary;")
@@ -87,6 +96,8 @@ def fetch_view_actor_summary():
 # ============================
 # Task 1 – Generic Function
 # ============================
+
+
 def run_query(cursor, query):
     cursor.execute(query)
     return cursor.fetchall()
@@ -95,13 +106,16 @@ def run_query(cursor, query):
 # Task 2 – SELECT queries
 # ============================
 
+
 def get_all_movies(cursor):
     query = "SELECT * FROM movies;"
     return run_query(cursor, query)
 
+
 def get_all_customers(cursor):
     query = "SELECT * FROM customers;"
     return run_query(cursor, query)
+
 
 def get_all_actors(cursor):
     query = "SELECT * FROM actors;"
@@ -111,15 +125,18 @@ def get_all_actors(cursor):
 # TASK 3 - WHERE CLAUSE
 # ============================
 
+
 def fetch_task3_movies_after_2015():
     rows = _fetch_all("SELECT * FROM public.movies WHERE year_of_release > 2015;")
     _print_rows("TASK3_MOVIES_AFTER_2015", rows)
     return rows
 
+
 def fetch_task3_customers_from_canada():
     rows = _fetch_all("SELECT * FROM public.customers WHERE country = 'Canada';")
     _print_rows("TASK3_CUSTOMERS_FROM_CANADA", rows)
     return rows
+
 
 def fetch_task3_rentings_rating_ge_4():
     rows = _fetch_all("SELECT * FROM public.rentings WHERE rating >= 4;")
@@ -130,9 +147,71 @@ def fetch_task3_rentings_rating_ge_4():
 # Task 4 – Aggregation Functions
 # ============================
 
+
+def get_total_movies():
+    query = """
+    SELECT COUNT(movie_id) AS total_movies
+    FROM movies;
+    """
+    return run_query(query)
+
+
+def get_average_renting_price():
+    query = """
+    SELECT AVG(renting_price) AS average_renting_price
+    FROM movies;
+    """
+    return run_query(query)
+
+
+def get_average_rating():
+    query = """
+    SELECT AVG(rating) AS average_rating
+    FROM rentings;
+    """
+    return run_query(query)
+
 # ============================
 # Task 5 – GROUP BY
 # ============================
+
+
+def get_number_of_movies_per_genre(cursor):
+    query = """
+    SELECT
+        genre,
+        COUNT(movie_id) AS movie_count
+    FROM movies
+    GROUP BY genre
+    ORDER BY movie_count DESC;
+    """
+    return run_query(cursor, query)
+
+
+def get_number_of_customers_per_country(cursor):
+    query = """
+    SELECT
+        country,
+        COUNT(customer_id) AS customer_count
+    FROM customers
+    GROUP BY country
+    ORDER BY customer_count DESC;
+    """
+    return run_query(cursor, query)
+
+
+def get_number_of_rentings_per_movie(cursor):
+    query = """
+    SELECT
+        m.title,
+        COUNT(r.renting_id) AS renting_count
+    FROM movies m
+    JOIN rentings r
+        ON r.movie_id = m.movie_id
+    GROUP BY m.title
+    ORDER BY renting_count DESC;
+    """
+    return run_query(cursor, query)
 
 # ============================
 # Task 6 –  JOIN Queries
@@ -187,6 +266,10 @@ def get_customers_with_rentals_count(cursor):
 # Task 7 –  HAVING Clause
 # ============================
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1f499e8203eb1da1028bc3f1368d278fc4323e14
 def get_genres_with_more_than_3_movies(cursor):
     query = """
     SELECT
@@ -198,6 +281,7 @@ def get_genres_with_more_than_3_movies(cursor):
     ORDER BY total_movies DESC;
     """
     return run_query(cursor, query)
+
 
 def get_movies_with_avg_rating_above_4(cursor):
     query = """
@@ -213,6 +297,7 @@ def get_movies_with_avg_rating_above_4(cursor):
     """
     return run_query(cursor, query)
 
+
 def get_customers_with_more_than_5_rentals(cursor):
     query = """
     SELECT
@@ -227,6 +312,7 @@ def get_customers_with_more_than_5_rentals(cursor):
     """
     return run_query(cursor, query)
 
+
 # ============================
 # Task 8 –  Output Formatting
 # ============================
@@ -236,12 +322,13 @@ def get_customers_with_more_than_5_rentals(cursor):
 # ============================
 
 # ============================
-# Task Bonus –  
+# Task Bonus –
 # ============================
 
 # ---------------------------------------------------------
 # MENU
 # ---------------------------------------------------------
+
 
 def show_menu():
     print("\n=== SELECT DATABASE TO DISPLAY ===")
@@ -259,23 +346,30 @@ def show_menu():
 
     print("0. Exit")
 
+
 def print_database_actors():
     fetch_actors()
+
 
 def print_database_actsin():
     fetch_actsin()
 
+
 def print_database_customers():
     fetch_customers()
+
 
 def print_database_log_activity():
     fetch_log_activity()
 
+
 def print_database_movies():
     fetch_movies()
 
+
 def print_database_rentings():
     fetch_rentings()
+
 
 def print_database_view_actor_summary():
     fetch_view_actor_summary()
@@ -284,8 +378,10 @@ def print_database_view_actor_summary():
 def print_task3_movies_after_2015():
     fetch_task3_movies_after_2015()
 
+
 def print_task3_customers_from_canada():
     fetch_task3_customers_from_canada()
+
 
 def print_task3_rentings_rating_ge_4():
     fetch_task3_rentings_rating_ge_4()
@@ -295,66 +391,15 @@ if __name__ == "__main__":
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    query = "SELECT * FROM movies;"
-    result = run_query(cursor, query)
+    print("\n=== Task 5.1: Number of movies per genre ===")
+for row in get_number_of_movies_per_genre(cursor):
+    print(f"Genre: {row['genre']} | Movie Count: {row['movie_count']}")
 
-    print("=== MOVIES ===")
-    for movie in get_all_movies(cursor):
-        print(movie)
+print("\n=== Task 5.2: Number of customers per country ===")
+for row in get_number_of_customers_per_country(cursor):
+    print(
+        f"Country: {row['country']} | Customer Count: {row['customer_count']}")
 
-    print("\n=== CUSTOMERS ===")
-    for customer in get_all_customers(cursor):
-        print(customer)
-
-    print("\n=== ACTORS ===")
-    for actor in get_all_actors(cursor):
-        print(actor)
-    
-    print("\n=== Task 7.1: Genres with more than 3 movies ===")
-    for row in get_genres_with_more_than_3_movies(cursor):
-        print(row)
-
-    print("\n=== Task 7.2: Movies with avg rating above 4 ===")
-    for row in get_movies_with_avg_rating_above_4(cursor):
-        print(row)
-
-    print("\n=== Task 7.3: Customers with more than 5 rentals ===")
-    for row in get_customers_with_more_than_5_rentals(cursor):
-        print(row)
-
-    for row in result:
-        print(row)
-
-    cursor.close()
-    conn.close()
-
-    show_menu()
-    choice = input("\nEnter your choice: ")
-
-    if choice == "1":
-        print_database_actors()
-    elif choice == "2":
-        print_database_actsin()
-    elif choice == "3":
-        print_database_customers()
-    elif choice == "4":
-        print_database_log_activity()
-    elif choice == "5":
-        print_database_movies()
-    elif choice == "6":
-        print_database_rentings()
-    elif choice == "7":
-        print_database_view_actor_summary()
-
-    elif choice == "8":
-        print_task3_movies_after_2015()
-    elif choice == "9":
-        print_task3_customers_from_canada()
-    elif choice == "10":
-        print_task3_rentings_rating_ge_4()
-
-    elif choice == "0":
-        print("Exiting...")
-    else:
-        print("Invalid option, try again.")
-
+print("\n=== Task 5.3: Number of rentings per movie ===")
+for row in get_number_of_rentings_per_movie(cursor):
+    print(f"Movie: {row['title']} | Rentings: {row['renting_count']}")
