@@ -341,6 +341,10 @@ def show_menu():
     print("9. Task 3 - Customers from Canada")
     print("10. Task 3 - Rentings rating >= 4")
 
+    print("11. Task 5.1 - Number of movies per genre")
+    print("12. Task 5.2 - Number of customers per country")
+    print("13. Task 5.3 - Number of rentings per movie")
+
     print("0. Exit")
 
 
@@ -384,19 +388,121 @@ def print_task3_rentings_rating_ge_4():
     fetch_task3_rentings_rating_ge_4()
 
 
+def print_task5_movies_per_genre():
+    print("\n=== Task 5.1: Number of movies per genre ===")
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            for row in get_number_of_movies_per_genre(cur):
+                print(f"Genre: {row['genre']} | Movie Count: {row['movie_count']}")
+    except Exception as e:
+        print(f"Error while fetching Task 5.1: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+
+def print_task5_customers_per_country():
+    print("\n=== Task 5.2: Number of customers per country ===")
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            for row in get_number_of_customers_per_country(cur):
+                print(f"Country: {row['country']} | Customer Count: {row['customer_count']}")
+    except Exception as e:
+        print(f"Error while fetching Task 5.2: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+
+def print_task5_rentings_per_movie():
+    print("\n=== Task 5.3: Number of rentings per movie ===")
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            for row in get_number_of_rentings_per_movie(cur):
+                print(f"Movie: {row['title']} | Rentings: {row['renting_count']}")
+    except Exception as e:
+        print(f"Error while fetching Task 5.3: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+
 if __name__ == "__main__":
     conn = get_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    print("\n=== Task 5.1: Number of movies per genre ===")
-for row in get_number_of_movies_per_genre(cursor):
-    print(f"Genre: {row['genre']} | Movie Count: {row['movie_count']}")
+    query = "SELECT * FROM movies;"
+    result = run_query(cursor, query)
 
-print("\n=== Task 5.2: Number of customers per country ===")
-for row in get_number_of_customers_per_country(cursor):
-    print(
-        f"Country: {row['country']} | Customer Count: {row['customer_count']}")
+    print("=== MOVIES ===")
+    for movie in get_all_movies(cursor):
+        print(movie)
 
-print("\n=== Task 5.3: Number of rentings per movie ===")
-for row in get_number_of_rentings_per_movie(cursor):
-    print(f"Movie: {row['title']} | Rentings: {row['renting_count']}")
+    print("\n=== CUSTOMERS ===")
+    for customer in get_all_customers(cursor):
+        print(customer)
+
+    print("\n=== ACTORS ===")
+    for actor in get_all_actors(cursor):
+        print(actor)
+
+    print("\n=== Task 7.1: Genres with more than 3 movies ===")
+    for row in get_genres_with_more_than_3_movies(cursor):
+        print(row)
+
+    print("\n=== Task 7.2: Movies with avg rating above 4 ===")
+    for row in get_movies_with_avg_rating_above_4(cursor):
+        print(row)
+
+    print("\n=== Task 7.3: Customers with more than 5 rentals ===")
+    for row in get_customers_with_more_than_5_rentals(cursor):
+        print(row)
+
+    for row in result:
+        print(row)
+
+    cursor.close()
+    conn.close()
+
+    show_menu()
+    choice = input("\nEnter your choice: ")
+
+    if choice == "1":
+        print_database_actors()
+    elif choice == "2":
+        print_database_actsin()
+    elif choice == "3":
+        print_database_customers()
+    elif choice == "4":
+        print_database_log_activity()
+    elif choice == "5":
+        print_database_movies()
+    elif choice == "6":
+        print_database_rentings()
+    elif choice == "7":
+        print_database_view_actor_summary()
+
+    elif choice == "8":
+        print_task3_movies_after_2015()
+    elif choice == "9":
+        print_task3_customers_from_canada()
+    elif choice == "10":
+        print_task3_rentings_rating_ge_4()
+
+    elif choice == "11":
+        print_task5_movies_per_genre()
+    elif choice == "12":
+        print_task5_customers_per_country()
+    elif choice == "13":
+        print_task5_rentings_per_movie()
+
+    elif choice == "0":
+        print("Exiting...")
+    else:
+        print("Invalid option, try again.")
