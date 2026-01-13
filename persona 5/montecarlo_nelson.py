@@ -174,11 +174,11 @@ def plot_convergence(conv: List[Tuple[int, float]], exact_p: float) -> None:
     plt.legend()
     plt.show()
 
-def plot_rating_histogram(ratings: List[Optional[int]]) -> None:
+def plot_cumulative_rating_probability(ratings: List[Optional[int]]) -> None:
 
     plt = _try_import_matplotlib()
     if plt is None:
-        print("\nMatplotlib is not installed (or failed to import).")
+        print("\nMatplotlib is not installed.")
         print("Install it with: pip install matplotlib")
         return
 
@@ -187,13 +187,22 @@ def plot_rating_histogram(ratings: List[Optional[int]]) -> None:
         print("\nNo non-null ratings available to plot.")
         return
 
+    total = len(rated)
+    unique_ratings = sorted(set(rated))
+
+    cumulative_probs = []
+    for x in unique_ratings:
+        count = sum(1 for r in rated if r >= x)
+        cumulative_probs.append(count / total)
+
     plt.figure(figsize=(9, 5))
-    plt.hist(rated, bins=range(min(rated), max(rated) + 2), edgecolor="black")
-    plt.xlabel("Rating value")
-    plt.ylabel("Frequency")
-    plt.title("Histogram of Rental Ratings (non-null)")
+    plt.plot(unique_ratings, cumulative_probs, marker="o")
+    plt.xlabel("Rating threshold (x)")
+    plt.ylabel("P(Rating ≥ x)")
+    plt.title("Cumulative Probability of Movie Ratings")
     plt.grid(True)
     plt.show()
+
 
 # -----------------------------
 # Menu
@@ -207,7 +216,7 @@ def print_menu() -> None:
     print("4) Simulate customer behavior → P(customer rents ≥ 2)")
     print("5) Convergence study + LLN explanation (rating ≥ 4)")
     print("6) Plot convergence (Matplotlib)")
-    print("7) Plot rating histogram (Matplotlib)")
+    print("7) Plot cumulative rating probability P(rating ≥ x)")
     print("0) Exit")
 
 def main() -> None:
@@ -302,9 +311,9 @@ def main() -> None:
 
         elif choice == "7":
             if not ratings:
-                print("\nLoad data first (option 1).")
-                continue
-            plot_rating_histogram(ratings)
+               print("\nLoad data first (option 1).")
+               continue
+           plot_cumulative_rating_probability(ratings)
 
         else:
             print("\nInvalid option. Try again.")
