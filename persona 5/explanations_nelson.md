@@ -22,7 +22,7 @@ The first goal is to estimate the probability that a randomly selected movie ren
 Because not all rentals have a rating, only rentals with a rating are considered. In simple terms, the question is:
 “If we randomly choose a rental that has a rating, what is the chance that the rating is at least 4?”
 
-#How the Simulation Works
+# How the Simulation Works
 A rental is randomly selected from the database.
 If the rental does not have a rating, it is ignored.
 If the rental has a rating, we check whether it is 4 or higher.
@@ -85,7 +85,7 @@ Larger numbers of simulations produce results that change less.
 The estimated probability becomes more reliable as the simulation size increases.
 This behavior is clearly visible in both the numerical results and the convergence output.
 
-#Visualization (Bonus)
+# Visualization (Bonus)
 
 To make the results easier to understand, a convergence plot is created using Matplotlib.
 
