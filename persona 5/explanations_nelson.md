@@ -95,6 +95,11 @@ how the estimated probability changes as the number of simulations increases
 a horizontal line representing the exact probability
 This visual representation clearly shows the simulated values approaching the exact value, which supports the explanation of the Law of Large Numbers.
 
+Cumulative probability Plot
+
+What is the probability that a rating is greater than or equal to a given value?
+A cumulative probability plot was used to directly show the probability that a rating is greater than or equal to a given value, which makes the interpretation of P(rating ≥ 4) more intuitive.
+
 # Conclusion
 
 This project demonstrates how Monte Carlo simulation can be used to estimate probabilities using real-world data. By randomly sampling movie rentals and customer behavior, probabilities can be approximated without hardcoding any values.
