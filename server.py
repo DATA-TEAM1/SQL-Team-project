@@ -313,6 +313,31 @@ def get_customers_with_more_than_5_rentals(cursor):
 # ============================
 # Task 8 –  Output Formatting
 # ============================
+# Create a database cursor
+cursor = db.cursor()
+
+# SQL query
+query = """
+SELECT genre, COUNT(movie_id) AS movie_count
+FROM movies
+GROUP BY genre
+"""
+
+# Execute query
+cursor.execute(query)
+
+# Fetch all results
+results = cursor.fetchall()
+
+# Loop through query results and print formatted output
+for row in results:
+    genre = row[0]
+    movie_count = row[1]
+
+    print(f"Genre: {genre} | Movie Count: {movie_count}")
+
+# Close cursor
+cursor.close()
 
 # ============================
 # Task 9 –  Error Handling
@@ -321,6 +346,47 @@ def get_customers_with_more_than_5_rentals(cursor):
 # ============================
 # Task Bonus –
 # ============================
+import time
+
+# Create cursor
+cursor = db.cursor()
+
+# Start measuring execution time
+start_time = time.time()
+
+# SQL query using ORDER BY and LIMIT
+query = """
+SELECT genre, COUNT(movie_id) AS movie_count
+FROM movies
+GROUP BY genre
+ORDER BY movie_count DESC
+LIMIT 5
+"""
+
+cursor.execute(query)
+rows = cursor.fetchall()
+
+# Stop measuring execution time
+end_time = time.time()
+execution_time = end_time - start_time
+
+# Convert results into dictionaries
+columns = [column[0] for column in cursor.description]
+results = [dict(zip(columns, row)) for row in rows]
+
+# Save results to a file
+with open("bonus_task_output.txt", "w") as file:
+    for row in results:
+        file.write(
+            f"Genre: {row['genre']} | Movie Count: {row['movie_count']}\n"
+        )
+
+    file.write(
+        f"\nQuery Execution Time: {execution_time:.6f} seconds\n"
+    )
+
+# Close cursor
+cursor.close()
 
 # ---------------------------------------------------------
 # MENU
