@@ -147,29 +147,41 @@ def fetch_task3_rentings_rating_ge_4():
 # Task 4 – Aggregation Functions
 # ============================
 
-
-def get_total_movies():
+def get_total_movies(cursor):
+    """
+    Task 4.1
+    Return total number of movies.
+    """
     query = """
     SELECT COUNT(movie_id) AS total_movies
     FROM movies;
     """
-    return run_query(query)
+    return run_query(cursor, query)
 
 
-def get_average_renting_price():
-    query = """
-    SELECT AVG(renting_price) AS average_renting_price
-    FROM movies;
+def get_total_customers(cursor):
     """
-    return run_query(query)
-
-
-def get_average_rating():
-    query = """
-    SELECT AVG(rating) AS average_rating
-    FROM rentings;
+    Task 4.2
+    Return total number of customers.
     """
-    return run_query(query)
+    query = """
+    SELECT COUNT(customer_id) AS total_customers
+    FROM customers;
+    """
+    return run_query(cursor, query)
+
+
+def get_average_movie_rating(cursor):
+    """
+    Task 4.3
+    Return average rating (NULL ratings ignored).
+    """
+    query = """
+    SELECT AVG(rating) AS avg_rating
+    FROM rentings
+    WHERE rating IS NOT NULL;
+    """
+    return run_query(cursor, query)
 
 # ============================
 # Task 5 – GROUP BY
@@ -313,31 +325,39 @@ def get_customers_with_more_than_5_rentals(cursor):
 # ============================
 # Task 8 –  Output Formatting
 # ============================
-# Create a database cursor
-cursor = db.cursor()
 
-# SQL query
-query = """
-SELECT genre, COUNT(movie_id) AS movie_count
-FROM movies
-GROUP BY genre
-"""
+def task8_output_formatting():
+    """
+    Task 8: formatted output (safe to import).
+    """
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-# Execute query
-cursor.execute(query)
+        query = """
+        SELECT genre, COUNT(movie_id) AS movie_count
+        FROM movies
+        GROUP BY genre
+        """
 
-# Fetch all results
-results = cursor.fetchall()
+        cursor.execute(query)
+        results = cursor.fetchall()
 
-# Loop through query results and print formatted output
-for row in results:
-    genre = row[0]
-    movie_count = row[1]
+        for row in results:
+            genre = row[0]
+            movie_count = row[1]
+            print(f"Genre: {genre} | Movie Count: {movie_count}")
 
-    print(f"Genre: {genre} | Movie Count: {movie_count}")
+    except Exception as e:
+        print(f"Task 8 error: {e}")
 
-# Close cursor
-cursor.close()
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 # ============================
 # Task 9 –  Error Handling
@@ -348,45 +368,51 @@ cursor.close()
 # ============================
 import time
 
-# Create cursor
-cursor = db.cursor()
+def bonus_top_5_genres_to_file(output_file: str = "bonus_task_output.txt"):
+    """
+    Bonus: top 5 genres + execution time written to a file (safe to import).
+    """
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-# Start measuring execution time
-start_time = time.time()
+        start_time = time.time()
 
-# SQL query using ORDER BY and LIMIT
-query = """
-SELECT genre, COUNT(movie_id) AS movie_count
-FROM movies
-GROUP BY genre
-ORDER BY movie_count DESC
-LIMIT 5
-"""
+        query = """
+        SELECT genre, COUNT(movie_id) AS movie_count
+        FROM movies
+        GROUP BY genre
+        ORDER BY movie_count DESC
+        LIMIT 5
+        """
 
-cursor.execute(query)
-rows = cursor.fetchall()
+        cursor.execute(query)
+        rows = cursor.fetchall()
 
-# Stop measuring execution time
-end_time = time.time()
-execution_time = end_time - start_time
+        end_time = time.time()
+        execution_time = end_time - start_time
 
-# Convert results into dictionaries
-columns = [column[0] for column in cursor.description]
-results = [dict(zip(columns, row)) for row in rows]
+        # Convert results into dictionaries (manual, no pandas)
+        columns = [desc[0] for desc in cursor.description]
+        results = [dict(zip(columns, row)) for row in rows]
 
-# Save results to a file
-with open("bonus_task_output.txt", "w") as file:
-    for row in results:
-        file.write(
-            f"Genre: {row['genre']} | Movie Count: {row['movie_count']}\n"
-        )
+        with open(output_file, "w") as file:
+            for row in results:
+                file.write(f"Genre: {row['genre']} | Movie Count: {row['movie_count']}\n")
+            file.write(f"\nQuery Execution Time: {execution_time:.6f} seconds\n")
 
-    file.write(
-        f"\nQuery Execution Time: {execution_time:.6f} seconds\n"
-    )
+        print(f"Saved bonus output to: {output_file}")
 
-# Close cursor
-cursor.close()
+    except Exception as e:
+        print(f"Bonus task error: {e}")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 # ---------------------------------------------------------
 # MENU
