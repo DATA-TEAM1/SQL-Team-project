@@ -1,137 +1,192 @@
-# ============================
-# Person 6 – Bayes’ Theorem
-# ============================
+"""
+Bayesian Analysis on Movie Rental Database
 
-def bayes_analysis():
-    print("\n==============================")
-    print("Bayesian Analysis Using Database Data")
-    print("==============================")
+This module applies Bayes' Theorem using real data from the database.
+It demonstrates:
+- Prior, likelihood, evidence
+- Bayesian arrays
+- Normalization
+- Posterior computation
+- Verification via direct conditional probability
+- Two real-world Bayesian scenarios
+"""
 
-    conn = None
-    try:
-        conn = get_connection()
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-
-            # ---------- Scenario 1 ----------
-            total_rentings = run_query(
-                cur, "SELECT COUNT(*) AS count FROM rentings;"
-            )[0]["count"]
-
-            total_movies = run_query(
-                cur, "SELECT COUNT(*) AS count FROM movies;"
-            )[0]["count"]
-
-            drama_movies = run_query(
-                cur,
-                "SELECT COUNT(*) AS count FROM movies WHERE genre = 'Drama';"
-            )[0]["count"]
-
-            high_rating = run_query(
-                cur,
-                "SELECT COUNT(*) AS count FROM rentings WHERE rating >= 4;"
-            )[0]["count"]
-
-            drama_high = run_query(
-                cur,
-                """
-                SELECT COUNT(*) AS count
-                FROM rentings r
-                JOIN movies m ON r.movie_id = m.movie_id
-                WHERE m.genre = 'Drama' AND r.rating >= 4;
-                """
-            )[0]["count"]
-
-            drama_rentings = run_query(
-                cur,
-                """
-                SELECT COUNT(*) AS count
-                FROM rentings r
-                JOIN movies m ON r.movie_id = m.movie_id
-                WHERE m.genre = 'Drama';
-                """
-            )[0]["count"]
-
-            P_drama = drama_movies / total_movies
-            P_high = high_rating / total_rentings
-            P_high_given_drama = drama_high / drama_rentings
-
-            P_drama_given_high = (
-                P_high_given_drama * P_drama
-            ) / P_high
-
-            print("\n--- Scenario 1 ---")
-            print("P(Drama | Rating >= 4):", round(P_drama_given_high, 4))
-
-            # ---------- Scenario 2 ----------
-            action_movies = run_query(
-                cur,
-                "SELECT COUNT(*) AS count FROM movies WHERE genre = 'Action';"
-            )[0]["count"]
-
-            male_customers = run_query(
-                cur,
-                "SELECT COUNT(*) AS count FROM customers WHERE gender = 'Male';"
-            )[0]["count"]
-
-            total_customers = run_query(
-                cur,
-                "SELECT COUNT(*) AS count FROM customers;"
-            )[0]["count"]
-
-            male_action = run_query(
-                cur,
-                """
-                SELECT COUNT(*) AS count
-                FROM rentings r
-                JOIN customers c ON r.customer_id = c.customer_id
-                JOIN movies m ON r.movie_id = m.movie_id
-                WHERE m.genre = 'Action' AND c.gender = 'Male';
-                """
-            )[0]["count"]
-
-            action_rentings = run_query(
-                cur,
-                """
-                SELECT COUNT(*) AS count
-                FROM rentings r
-                JOIN movies m ON r.movie_id = m.movie_id
-                WHERE m.genre = 'Action';
-                """
-            )[0]["count"]
-
-            P_action = action_movies / total_movies
-            P_male = male_customers / total_customers
-            P_male_given_action = male_action / action_rentings
-
-            P_action_given_male = (
-                P_male_given_action * P_action
-            ) / P_male
-
-            print("\n--- Scenario 2 ---")
-            print("P(Action | Customer is Male):", round(P_action_given_male, 4))
-
-            # ---------- Verification ----------
-            P_direct = drama_high / high_rating
-            print("\n--- Verification ---")
-            print("Direct P(Drama | Rating >= 4):", round(P_direct, 4))
-
-            # ---------- Explanation ----------
-            print("\n--- Why Normalization Is Required ---")
-            print(
-                "Bayes' theorem divides by P(B) to normalize probabilities.\n"
-                "Without normalization, probabilities would be invalid."
-            )
-
-    except Exception as e:
-        print("Bayesian analysis error:", e)
-
-    finally:
-        if conn:
-            conn.close()
+from server import get_connection
 
 
-# ------------------------------------------------
-# Run inside server.py
-# ------------------------------------------------
+# ==========================================================
+# SAFE DATABASE HELPER
+# ==========================================================
+
+def fetch_scalar(query, params=None):
+    """
+    Executes a query that returns a single scalar value.
+    Safely handles NULL and division-by-zero cases.
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(query, params or ())
+    value = cur.fetchone()[0]
+    conn.close()
+    return value if value is not None else 0
+
+
+# ==========================================================
+# SCENARIO 1
+# P(HighRating | Genre)
+# ==========================================================
+
+def bayes_high_rating_given_genre(genre):
+    """
+    Bayesian inference:
+    Probability that a movie receives a high rating (>=4)
+    given that it belongs to a specific genre.
+    """
+
+    # PRIOR: P(HighRating)
+    prior = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE rating >= 4)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings;
+    """)
+
+    # LIKELIHOOD: P(Genre | HighRating)
+    likelihood = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE m.genre = %s)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN movies m ON r.movie_id = m.movie_id
+        WHERE r.rating >= 4;
+    """, (genre,))
+
+    # EVIDENCE: P(Genre)
+    evidence = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE m.genre = %s)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN movies m ON r.movie_id = m.movie_id;
+    """, (genre,))
+
+    # BAYES ARRAY (UNNORMALIZED)
+    bayes_array = [
+        {"hypothesis": "HighRating", "joint": likelihood * prior},
+        {"hypothesis": "NotHighRating", "joint": (1 - likelihood) * (1 - prior)}
+    ]
+
+    # NORMALIZATION
+    normalization_constant = sum(x["joint"] for x in bayes_array)
+
+    posterior = (
+        bayes_array[0]["joint"] / normalization_constant
+        if normalization_constant > 0 else 0
+    )
+
+    # DIRECT CONDITIONAL PROBABILITY (VERIFICATION)
+    direct = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE r.rating >= 4)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN movies m ON r.movie_id = m.movie_id
+        WHERE m.genre = %s;
+    """, (genre,))
+
+    return {
+        "scenario": "P(HighRating | Genre)",
+        "genre": genre,
+        "prior": prior,
+        "likelihood": likelihood,
+        "evidence": evidence,
+        "bayes_array": bayes_array,
+        "normalization_constant": normalization_constant,
+        "posterior_bayes": posterior,
+        "posterior_direct": direct
+    }
+
+
+# ==========================================================
+# SCENARIO 2
+# P(Female | HighRating)
+# ==========================================================
+
+def bayes_female_given_high_rating():
+    """
+    Bayesian inference:
+    Probability that a customer is female,
+    given that they give high ratings (>=4).
+    """
+
+    # PRIOR: P(Female)
+    prior = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE gender = 'F')::float
+               / NULLIF(COUNT(*), 0)
+        FROM customers;
+    """)
+
+    # LIKELIHOOD: P(HighRating | Female)
+    likelihood = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE r.rating >= 4)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN customers c ON r.customer_id = c.customer_id
+        WHERE c.gender = 'F';
+    """)
+
+    # EVIDENCE: P(HighRating)
+    evidence = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE rating >= 4)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings;
+    """)
+
+    # BAYES ARRAY (UNNORMALIZED)
+    bayes_array = [
+        {"hypothesis": "Female", "joint": likelihood * prior},
+        {"hypothesis": "Male", "joint": (1 - likelihood) * (1 - prior)}
+    ]
+
+    # NORMALIZATION
+    normalization_constant = sum(x["joint"] for x in bayes_array)
+
+    posterior = (
+        bayes_array[0]["joint"] / normalization_constant
+        if normalization_constant > 0 else 0
+    )
+
+    # DIRECT CONDITIONAL VERIFICATION
+    direct = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE c.gender = 'F')::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN customers c ON r.customer_id = c.customer_id
+        WHERE r.rating >= 4;
+    """)
+
+    return {
+        "scenario": "P(Female | HighRating)",
+        "prior": prior,
+        "likelihood": likelihood,
+        "evidence": evidence,
+        "bayes_array": bayes_array,
+        "normalization_constant": normalization_constant,
+        "posterior_bayes": posterior,
+        "posterior_direct": direct
+    }
+
+
+# ==========================================================
+# MAIN
+# ==========================================================
+
 if __name__ == "__main__":
-    bayes_analysis()
+
+    print("\n========== BAYESIAN ANALYSIS ==========\n")
+
+    # SCENARIO 1
+    result1 = bayes_high_rating_given_genre("Action")
+    print("SCENARIO 1 RESULT:\n", result1)
+
+    print("\n--------------------------------------\n")
+
+    # SCENARIO 2
+    result2 = bayes_female_given_high_rating()
+    print("SCENARIO 2 RESULT:\n", result2)
