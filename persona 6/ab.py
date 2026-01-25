@@ -1,130 +1,192 @@
-# Person 6 – Bayes’ Theorem
-# Reverse conditional probabilities using Bayes' Theorem
+"""
+Bayesian Analysis on Movie Rental Database
 
-cursor = db.cursor()
+This module applies Bayes' Theorem using real data from the database.
+It demonstrates:
+- Prior, likelihood, evidence
+- Bayesian arrays
+- Normalization
+- Posterior computation
+- Verification via direct conditional probability
+- Two real-world Bayesian scenarios
+"""
 
-# --------------------------------------------------
-# 1. P(Drama | Rating >= 4) using Bayes' Theorem
-# --------------------------------------------------
+from server import get_connection
 
-# Total number of rentings
-cursor.execute("SELECT COUNT(*) FROM rentings")
-total_rentings = cursor.fetchone()[0]
 
-# P(A) = P(Drama)
-cursor.execute("""
-SELECT COUNT(*)
-FROM movies
-WHERE genre = 'Drama'
-""")
-total_drama_movies = cursor.fetchone()[0]
+# ==========================================================
+# SAFE DATABASE HELPER
+# ==========================================================
 
-cursor.execute("SELECT COUNT(*) FROM movies")
-total_movies = cursor.fetchone()[0]
+def fetch_scalar(query, params=None):
+    """
+    Executes a query that returns a single scalar value.
+    Safely handles NULL and division-by-zero cases.
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(query, params or ())
+    value = cur.fetchone()[0]
+    conn.close()
+    return value if value is not None else 0
 
-P_drama = total_drama_movies / total_movies
 
-# P(B) = P(Rating >= 4)
-cursor.execute("""
-SELECT COUNT(*)
-FROM rentings
-WHERE rating >= 4
-""")
-high_rating_count = cursor.fetchone()[0]
-P_high_rating = high_rating_count / total_rentings
+# ==========================================================
+# SCENARIO 1
+# P(HighRating | Genre)
+# ==========================================================
 
-# P(B | A) = P(Rating >= 4 | Drama)
-cursor.execute("""
-SELECT COUNT(*)
-FROM rentings r
-JOIN movies m ON r.movie_id = m.movie_id
-WHERE m.genre = 'Drama' AND r.rating >= 4
-""")
-drama_high_rating = cursor.fetchone()[0]
+def bayes_high_rating_given_genre(genre):
+    """
+    Bayesian inference:
+    Probability that a movie receives a high rating (>=4)
+    given that it belongs to a specific genre.
+    """
 
-cursor.execute("""
-SELECT COUNT(*)
-FROM rentings r
-JOIN movies m ON r.movie_id = m.movie_id
-WHERE m.genre = 'Drama'
-""")
-total_drama_rentings = cursor.fetchone()[0]
+    # PRIOR: P(HighRating)
+    prior = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE rating >= 4)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings;
+    """)
 
-P_high_rating_given_drama = drama_high_rating / total_drama_rentings
+    # LIKELIHOOD: P(Genre | HighRating)
+    likelihood = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE m.genre = %s)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN movies m ON r.movie_id = m.movie_id
+        WHERE r.rating >= 4;
+    """, (genre,))
 
-# Bayes' Theorem
-P_drama_given_high_rating = (
-    P_high_rating_given_drama * P_drama
-) / P_high_rating
+    # EVIDENCE: P(Genre)
+    evidence = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE m.genre = %s)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN movies m ON r.movie_id = m.movie_id;
+    """, (genre,))
 
-print("P(Drama | Rating >= 4):", round(P_drama_given_high_rating, 4))
+    # BAYES ARRAY (UNNORMALIZED)
+    bayes_array = [
+        {"hypothesis": "HighRating", "joint": likelihood * prior},
+        {"hypothesis": "NotHighRating", "joint": (1 - likelihood) * (1 - prior)}
+    ]
 
-# --------------------------------------------------
-# 2. P(Action | Customer is Male)
-# --------------------------------------------------
+    # NORMALIZATION
+    normalization_constant = sum(x["joint"] for x in bayes_array)
 
-# P(A) = P(Action)
-cursor.execute("""
-SELECT COUNT(*)
-FROM movies
-WHERE genre = 'Action'
-""")
-total_action_movies = cursor.fetchone()[0]
+    posterior = (
+        bayes_array[0]["joint"] / normalization_constant
+        if normalization_constant > 0 else 0
+    )
 
-P_action = total_action_movies / total_movies
+    # DIRECT CONDITIONAL PROBABILITY (VERIFICATION)
+    direct = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE r.rating >= 4)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN movies m ON r.movie_id = m.movie_id
+        WHERE m.genre = %s;
+    """, (genre,))
 
-# P(B) = P(Customer is Male)
-cursor.execute("""
-SELECT COUNT(*)
-FROM customers
-WHERE gender = 'Male'
-""")
-male_customers = cursor.fetchone()[0]
+    return {
+        "scenario": "P(HighRating | Genre)",
+        "genre": genre,
+        "prior": prior,
+        "likelihood": likelihood,
+        "evidence": evidence,
+        "bayes_array": bayes_array,
+        "normalization_constant": normalization_constant,
+        "posterior_bayes": posterior,
+        "posterior_direct": direct
+    }
 
-cursor.execute("SELECT COUNT(*) FROM customers")
-total_customers = cursor.fetchone()[0]
 
-P_male = male_customers / total_customers
+# ==========================================================
+# SCENARIO 2
+# P(Female | HighRating)
+# ==========================================================
 
-# P(B | A) = P(Customer is Male | Action)
-cursor.execute("""
-SELECT COUNT(*)
-FROM rentings r
-JOIN customers c ON r.customer_id = c.customer_id
-JOIN movies m ON r.movie_id = m.movie_id
-WHERE m.genre = 'Action' AND c.gender = 'Male'
-""")
-male_action_rentings = cursor.fetchone()[0]
+def bayes_female_given_high_rating():
+    """
+    Bayesian inference:
+    Probability that a customer is female,
+    given that they give high ratings (>=4).
+    """
 
-cursor.execute("""
-SELECT COUNT(*)
-FROM rentings r
-JOIN movies m ON r.movie_id = m.movie_id
-WHERE m.genre = 'Action'
-""")
-total_action_rentings = cursor.fetchone()[0]
+    # PRIOR: P(Female)
+    prior = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE gender = 'F')::float
+               / NULLIF(COUNT(*), 0)
+        FROM customers;
+    """)
 
-P_male_given_action = male_action_rentings / total_action_rentings
+    # LIKELIHOOD: P(HighRating | Female)
+    likelihood = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE r.rating >= 4)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN customers c ON r.customer_id = c.customer_id
+        WHERE c.gender = 'F';
+    """)
 
-# Bayes' Theorem
-P_action_given_male = (P_male_given_action * P_action) / P_male
+    # EVIDENCE: P(HighRating)
+    evidence = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE rating >= 4)::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings;
+    """)
 
-print("P(Action | Customer is Male):", round(P_action_given_male, 4))
+    # BAYES ARRAY (UNNORMALIZED)
+    bayes_array = [
+        {"hypothesis": "Female", "joint": likelihood * prior},
+        {"hypothesis": "Male", "joint": (1 - likelihood) * (1 - prior)}
+    ]
 
-# --------------------------------------------------
-# 3. Verification using Direct Conditional Probability
-# --------------------------------------------------
+    # NORMALIZATION
+    normalization_constant = sum(x["joint"] for x in bayes_array)
 
-cursor.execute("""
-SELECT COUNT(*)
-FROM rentings r
-JOIN movies m ON r.movie_id = m.movie_id
-WHERE r.rating >= 4 AND m.genre = 'Drama'
-""")
-direct_drama_high = cursor.fetchone()[0]
+    posterior = (
+        bayes_array[0]["joint"] / normalization_constant
+        if normalization_constant > 0 else 0
+    )
 
-P_direct_drama = direct_drama_high / high_rating_count
+    # DIRECT CONDITIONAL VERIFICATION
+    direct = fetch_scalar("""
+        SELECT COUNT(*) FILTER (WHERE c.gender = 'F')::float
+               / NULLIF(COUNT(*), 0)
+        FROM rentings r
+        JOIN customers c ON r.customer_id = c.customer_id
+        WHERE r.rating >= 4;
+    """)
 
-print("Direct P(Drama | Rating >= 4):", round(P_direct_drama, 4))
+    return {
+        "scenario": "P(Female | HighRating)",
+        "prior": prior,
+        "likelihood": likelihood,
+        "evidence": evidence,
+        "bayes_array": bayes_array,
+        "normalization_constant": normalization_constant,
+        "posterior_bayes": posterior,
+        "posterior_direct": direct
+    }
 
-cursor.close()
+
+# ==========================================================
+# MAIN
+# ==========================================================
+
+if __name__ == "__main__":
+
+    print("\n========== BAYESIAN ANALYSIS ==========\n")
+
+    # SCENARIO 1
+    result1 = bayes_high_rating_given_genre("Action")
+    print("SCENARIO 1 RESULT:\n", result1)
+
+    print("\n--------------------------------------\n")
+
+    # SCENARIO 2
+    result2 = bayes_female_given_high_rating()
+    print("SCENARIO 2 RESULT:\n", result2)
