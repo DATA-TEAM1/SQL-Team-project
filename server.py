@@ -147,29 +147,41 @@ def fetch_task3_rentings_rating_ge_4():
 # Task 4 – Aggregation Functions
 # ============================
 
-
-def get_total_movies():
+def get_total_movies(cursor):
+    """
+    Task 4.1
+    Return total number of movies.
+    """
     query = """
     SELECT COUNT(movie_id) AS total_movies
     FROM movies;
     """
-    return run_query(query)
+    return run_query(cursor, query)
 
 
-def get_average_renting_price():
-    query = """
-    SELECT AVG(renting_price) AS average_renting_price
-    FROM movies;
+def get_total_customers(cursor):
     """
-    return run_query(query)
-
-
-def get_average_rating():
-    query = """
-    SELECT AVG(rating) AS average_rating
-    FROM rentings;
+    Task 4.2
+    Return total number of customers.
     """
-    return run_query(query)
+    query = """
+    SELECT COUNT(customer_id) AS total_customers
+    FROM customers;
+    """
+    return run_query(cursor, query)
+
+
+def get_average_movie_rating(cursor):
+    """
+    Task 4.3
+    Return average rating (NULL ratings ignored).
+    """
+    query = """
+    SELECT AVG(rating) AS avg_rating
+    FROM rentings
+    WHERE rating IS NOT NULL;
+    """
+    return run_query(cursor, query)
 
 # ============================
 # Task 5 – GROUP BY
@@ -341,6 +353,9 @@ def print_movies_formatted():
 # Task 9 –  Error Handling
 # ============================
 
+# (Your error handling functions would go here)
+
+
 # ============================
 # Task Bonus –
 # ============================
@@ -365,6 +380,42 @@ def print_top_5_rated_movies():
     finally:
         if conn:
             conn.close()
+
+
+
+# ============================
+# Task 9 –  Error Handling
+# ============================
+
+# ============================
+# Task Bonus –
+# ============================
+# ============================
+# Task Bonus –
+# ============================
+def print_top_5_rated_movies():
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            rows = run_query(cur, """
+                SELECT title, avg_rating
+                FROM movies
+                ORDER BY avg_rating DESC
+                LIMIT 5;
+            """)
+
+            print("\n=== TOP 5 HIGHEST RATED MOVIES ===")
+            for row in rows:
+                print(f"Title: {row['title']} | Avg Rating: {row['avg_rating']}")
+
+    except Exception as e:
+        print(f"Error fetching top movies: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+
 
 
 

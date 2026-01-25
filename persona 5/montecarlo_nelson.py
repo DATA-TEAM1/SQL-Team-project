@@ -313,7 +313,7 @@ def main() -> None:
             if not ratings:
                print("\nLoad data first (option 1).")
                continue
-           plot_cumulative_rating_probability(ratings)
+            plot_cumulative_rating_probability(ratings)
 
         else:
             print("\nInvalid option. Try again.")
