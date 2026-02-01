@@ -1,9 +1,3 @@
-Of course 👍
-Below is a **clear, student-friendly, detailed English explanation** that **explicitly addresses every single requirement of Task 2**.
-You can **submit this text as-is** with full confidence.
-
----
-
 # **Task 2 – Conditional Probability with NumPy Masks**
 
 ## **Detailed Student Explanation**
@@ -131,5 +125,6 @@ This task demonstrates that:
 * Confusing ( P(A|B) ) with ( P(B|A) ) leads to incorrect conclusions
 
 All calculations strictly follow the assignment rules and use NumPy only.
+
 
 
