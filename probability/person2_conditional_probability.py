@@ -3,6 +3,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 
+from server import format_probability
+
 # ============================
 # Load Environment Variables
 # ============================
@@ -62,7 +64,7 @@ def prob_drama_given_runtime_gt_100():
     favorable = [m for m in condition if m["genre"] == "Drama"]
 
     p = conditional_probability(len(condition), len(favorable))
-    print(f"P(Drama | Runtime > 100) = {p:.4f}")
+    print(f"P(Drama | Runtime > 100) = {format_probability(p)}")
 
 
 # ============================
@@ -81,7 +83,7 @@ def prob_rating_ge_4_given_comedy():
     favorable = [d for d in condition if d["rating"] >= 4]
 
     p = conditional_probability(len(condition), len(favorable))
-    print(f"P(Rating ≥ 4 | Genre = Comedy) = {p:.4f}")
+    print(f"P(Drama | Runtime > 100) = {format_probability(p)}")
 
 
 # ============================
@@ -99,7 +101,7 @@ def prob_released_after_2015_given_rented():
     favorable = [d for d in condition if d["year_of_release"] > 2015]
 
     p = conditional_probability(len(condition), len(favorable))
-    print(f"P(Released after 2015 | Movie was rented) = {p:.4f}")
+    print(f"P(Released after 2015 | Movie was rented) = {format_probability(p)}")
 
 
 # ============================
@@ -117,7 +119,7 @@ def prob_female_given_rented():
     favorable = [d for d in condition if d["gender"] == "Female"]
 
     p = conditional_probability(len(condition), len(favorable))
-    print(f"P(Female | Rented at least one movie) = {p:.4f}")
+    print(f"P(Female | Rented at least one movie) = {format_probability(p)}")
 
 
 # ============================
@@ -134,7 +136,7 @@ def prob_runtime_gt_120_given_year_lt_2000():
     favorable = [m for m in condition if m["runtime"] > 120]
 
     p = conditional_probability(len(condition), len(favorable))
-    print(f"P(Runtime > 120 | Release year < 2000) = {p:.4f}")
+    print(f"P(Runtime > 120 | Release year < 2000) = {format_probability(p)}")
 
 
 # ============================
@@ -154,8 +156,8 @@ def compare_example_drama():
     p_conditional = conditional_probability(
         len(condition), len(drama_condition))
 
-    print(f"P(Drama) = {p_unconditional:.4f}")
-    print(f"P(Drama | Runtime > 100) = {p_conditional:.4f}")
+    print(f"P(Drama) = {format_probability(p_unconditional)}")
+    print(f"P(Drama | Runtime > 100) = {format_probability(p_conditional)}")
 
 
 # ============================
