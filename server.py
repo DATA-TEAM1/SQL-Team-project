@@ -5,6 +5,8 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Iterable, Tuple
 
+import runpy
+
 import psycopg2
 from psycopg2 import Error as PsycopgError
 from psycopg2.extras import RealDictCursor
@@ -388,6 +390,55 @@ def get_customers_with_more_than_5_rentals(cursor):
     """
     return run_query(cursor, query)
 
+
+BASE_DIR = Path(__file__).resolve().parent
+
+def _run_script(relative_path: str) -> None:
+    """Run a .py file as a script (safe for circular-import issues)."""
+    script_path = BASE_DIR / relative_path
+    if not script_path.exists():
+        print(f"[ERROR] Script not found: {script_path}")
+        return
+
+    print(f"\n--- Running: {relative_path} ---\n")
+    runpy.run_path(str(script_path), run_name="__main__")
+
+
+def show_probability_menu():
+    print("\n=== PROBABILITY HOMEWORK ===")
+    print("1. Person 1 - Basic Probability")
+    print("2. Person 2 - Conditional Probability")
+    print("3. Person 3 - Independent Events")
+    print("4. Discrete Random Variables")
+    print("5. Monte Carlo (Nelson)")
+    print("6. Person 6 - Bayes Theorem")
+    print("0. Back")
+
+
+def handle_probability_menu():
+    while True:
+        show_probability_menu()
+        ch = input("\nEnter your choice: ").strip()
+
+        if ch == "0":
+            break
+        elif ch == "1":
+            _run_script("probability/person1_basic_probability.py")
+        elif ch == "2":
+            _run_script("probability/person2_conditional_probability.py")
+        elif ch == "3":
+            _run_script("probability/person3_independent_events.py")
+        elif ch == "4":
+            _run_script("probability/DiscreteRandVar.py")
+        elif ch == "5":
+            _run_script("probability/montecarlo_nelson.py")
+        elif ch == "6":
+            _run_script("probability/person6_bayes_theorem.py")
+        else:
+            print("Invalid option.")
+
+
+
 # ---------------------------------------------------------
 # MENU
 # ---------------------------------------------------------
@@ -430,6 +481,9 @@ def show_menu():
     print("\n--- Bonus Tasks ---")
     print("20. Save last result as JSON")
     print("21. Save last result as CSV")
+
+    print("\n--- Extra ---")
+    print("P. Probability Homework (run scripts)")
 
     print("\n0. Exit")
 
@@ -612,6 +666,9 @@ def _handle_choice(choice: str) -> bool:
     elif choice == "0":
         print("Exiting...")
         return False
+    
+    elif choice.upper() == "P":
+        handle_probability_menu()
 
     else:
         print("Invalid option, try again.")
