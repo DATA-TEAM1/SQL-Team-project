@@ -1,8 +1,7 @@
 import numpy as np
 from psycopg2.extras import RealDictCursor
 
-# Importa tus helpers del server (misma lógica que ya usas en otros scripts)
-from server import get_connection, run_query
+from server import get_connection, run_query, format_probability, format_number
 
 # =====================================================
 # PART 1: RANDOM VARIABLE X — MOVIE RATINGS (FROM DB)
@@ -53,7 +52,9 @@ total_obs = ratings.size
 pmf_X = counts / total_obs
 
 print("\nProbability Mass Function P(X = x):")
-print(pmf_X)
+for x, p in zip(x_values, pmf_X):
+    print(f"P(X={int(x)}) = {format_probability(float(p))}")
+
 
 # -----------------------------------------------------
 # Step 3: Expected Value using dot product
@@ -62,7 +63,7 @@ print(pmf_X)
 
 expected_X = np.dot(x_values, pmf_X)
 
-print("\nExpected Value E(X):", expected_X)
+print("\nExpected Value E(X):", format_number(float(expected_X)))
 
 print(
     "\nInterpretation:\n"
@@ -89,8 +90,8 @@ print(squared_deviations)
 variance_X = np.dot(squared_deviations, pmf_X)
 std_dev_X = np.sqrt(variance_X)
 
-print("\nVariance Var(X):", variance_X)
-print("Standard Deviation:", std_dev_X)
+print("\nVariance Var(X):", format_number(float(variance_X)))
+print("\nStandard Deviation:", format_number(float(std_dev_X)))
 
 print(
     "\nInterpretation:\n"

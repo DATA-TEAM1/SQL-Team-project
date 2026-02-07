@@ -739,3 +739,13 @@ def format_probability(p, decimals: int = 2) -> str:
         return f"{p * 100:.{decimals}f}%"
     except Exception:
         return "N/A"
+
+def format_number(x, decimals: int = 2) -> str:
+    try:
+        if x is None:
+            return "N/A"
+        if isinstance(x, float) and (x != x): 
+            return "N/A"
+        return f"{x:.{decimals}f}"
+    except Exception:
+        return "N/A"

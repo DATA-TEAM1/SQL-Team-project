@@ -4,7 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Tuple
 
-from server import get_connection
+
+from server import get_connection, format_probability
 
 
 # -----------------------------
@@ -125,10 +126,10 @@ def main() -> None:
     print("=== Task 5 – Monte Carlo Simulation (NumPy) ===")
 
     print("\nTheoretical (from DB data, no hardcoding):")
-    print(f"1) P(rating ≥ 4 | rating exists) = {p_exact_rating:.6f}")
+    print(f"1) P(rating ≥ 4 | rating exists) = {format_probability(p_exact_rating)}")
     print("Explanation: This is the share of non-null ratings that are 4 or higher in the database.")
 
-    print(f"2) P(customer rented ≥ 2) = {p_exact_customer:.6f}")
+    print(f"2) P(customer rented ≥ 2) = {format_probability(p_exact_customer)}")
     print("Explanation: This is the share of customers (who appear in rentings) that have 2+ rentals in the database.")
 
     # --- Simulations (>=500,000) ---
@@ -136,10 +137,10 @@ def main() -> None:
     p_sim_customer, event_customer = simulate_customer_ge_2(counts, n=500_000, seed=42)
 
     print("\nSimulation results (500,000 events each):")
-    print(f"1) Simulated P(rating ≥ 4 | rating exists) = {p_sim_rating:.6f}")
+    print(f"1) Simulated P(rating ≥ 4 | rating exists) = {format_probability(p_sim_rating)}")
     print("Explanation: We randomly sampled rated rentals many times and counted how often rating ≥ 4.")
 
-    print(f"2) Simulated P(customer rented ≥ 2) = {p_sim_customer:.6f}")
+    print(f"2) Simulated P(customer rented ≥ 2) = {format_probability(p_sim_customer)}")
     print("Explanation: We randomly sampled customers many times and counted how often their rental count is ≥ 2.")
 
     # --- Compare simulation vs theoretical ---
@@ -147,8 +148,8 @@ def main() -> None:
     diff_customer = abs(p_sim_customer - p_exact_customer)
 
     print("\nComparison (simulation vs theoretical-from-data):")
-    print(f"- Rating probability absolute difference: {diff_rating:.6f}")
-    print(f"- Customer probability absolute difference: {diff_customer:.6f}")
+    print(f"- Rating probability absolute difference: {format_probability(diff_rating)}")
+    print(f"- Customer probability absolute difference: {format_probability(diff_customer)}")
     print("Explanation: With many simulations, the estimates should get closer to the theoretical values.")
 
     # --- Convergence curves + plots ---
