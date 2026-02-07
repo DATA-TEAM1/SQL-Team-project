@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from server import format_probability
+
 import random
 from typing import Dict, List, Optional, Tuple
 
@@ -142,11 +144,11 @@ def explain_lln(exact_p: float, conv: List[Tuple[int, float]]) -> None:
 
     print("\nLaw of Large Numbers (LLN):")
     print("- As the number of simulations n increases, the simulated proportion p̂ tends to get closer to the true probability.")
-    print(f"- Here the true (empirical exact) probability from the full database is: {exact_p:.6f}")
+    print(f"- Here the true (empirical exact) probability from the full database is: "f"{format_probability(exact_p)}")
     if conv:
         first_n, first_p = conv[0]
         last_n, last_p = conv[-1]
-        print(f"- Example: at n={first_n}, p̂={first_p:.6f}; at n={last_n}, p̂={last_p:.6f}")
+        print(f"- Example: at n={first_n}, p̂={format_probability(first_p)}; at n={last_n}, p̂={format_probability(last_p)}")
     print("- Small n usually fluctuates more; large n usually stabilizes.")
 
 # -----------------------------
@@ -251,7 +253,7 @@ def main() -> None:
             p_hat, fav, total_rated_sim = simulate_rating_geq_k(ratings, n_trials=10_000, k=4, seed=42)
             last_sim_rating = (p_hat, fav, total_rated_sim)
             print("\nSimulation (10,000 random rentals):")
-            print(f"Estimated P(rating ≥ 4 | rating exists) = {p_hat:.6f} = {fav}/{total_rated_sim}")
+            print(f"Estimated P(rating ≥ 4 | rating exists) = "f"{format_probability(p_hat)} = {fav}/{total_rated_sim}")
 
         elif choice == "3":
             if not ratings:
@@ -264,13 +266,13 @@ def main() -> None:
             print("\nCompare simulated vs exact (rating ≥ 4):")
             print("Definition:")
             print("  P(R ≥ 4 | rating exists) = (# rated rentals with rating ≥ 4) / (# rentals with rating not NULL)")
-            print(f"Exact (from DB): {exact_p:.6f} = {efav}/{etotal}")
+            print(f"Exact (from DB): {format_probability(exact_p)} = {efav}/{etotal}")
 
             if last_sim_rating is None:
                 print("Simulated: run option 2 first.")
             else:
                 p_hat, fav, total_rated_sim = last_sim_rating
-                print(f"Simulated (last run): {p_hat:.6f} = {fav}/{total_rated_sim}")
+                print(f"Simulated (last run): {format_probability(p_hat)} = {fav}/{total_rated_sim}")
 
         elif choice == "4":
             if not customer_ids:
@@ -283,8 +285,9 @@ def main() -> None:
             print("\nCustomer behavior: P(customer rents ≥ 2 movies)")
             print("Definition:")
             print("  P(Y ≥ 2) = (# customers with ≥ 2 rentals) / (# customers who rented at least once)")
-            print(f"Simulated (10,000): {sim_p:.6f} = {sim_fav}/{n}")
-            print(f"Exact (from DB):    {exact_p:.6f} = {efav}/{etotal}")
+            print(f"Simulated (10,000):{format_probability(sim_p)} = {sim_fav}/{n}")
+            print(f"Exact (from DB):{format_probability(exact_p)} = {efav}/{etotal}")
+
 
         elif choice == "5":
             if not ratings:
@@ -299,7 +302,7 @@ def main() -> None:
 
             print("\nConvergence study for P(rating ≥ 4 | rating exists):")
             for n, p_hat in conv:
-                print(f"n={n:<6}  p̂={p_hat:.6f}")
+                (f"n={n:<6}  p̂={format_probability(p_hat)}")
 
             explain_lln(exact_p, conv)
 

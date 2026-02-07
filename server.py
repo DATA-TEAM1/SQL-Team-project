@@ -729,3 +729,13 @@ if __name__ == "__main__":
             break
         except Exception as e:
             print(f"\n[ERROR] {e}")
+
+def format_probability(p, decimals: int = 2) -> str:
+    try:
+        if p is None:
+            return "N/A"
+        if isinstance(p, float) and (p != p):
+            return "N/A"
+        return f"{p * 100:.{decimals}f}%"
+    except Exception:
+        return "N/A"
