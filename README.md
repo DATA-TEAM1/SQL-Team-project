@@ -52,7 +52,7 @@ SQL-TEAM-PROJECT/
 │ ├── montecarlonumpyT5_nelson.py
 │ ├── person6_numpy_task6.py
 │ ├── person7_numpy_task7.py
-│ └── Supabase Snippet Movie metadata extraction.csv
+│
 │
 └── explanations/ # Written explanations and documentation
 
@@ -163,7 +163,8 @@ Prevent application crashes
 Why it matters:
 Reliable data systems must fail gracefully.
 
-Probability (Pure Python)
+## Probability (Pure Python)
+
 The probability/ folder focuses on statistical reasoning independent of databases.
 
 Topics covered include:
@@ -183,36 +184,26 @@ Bayes’ Theorem
 Why it matters:
 A Data Analyst must understand probability to correctly interpret data, not just compute values.
 
-NumPy Probability & Statistics
-The numpy/ folder applies probability concepts using vectorized NumPy operations.
+## NumPy Probability & Statistics
 
-Key aspects include:
+The `numpy/` folder applies probability and statistics concepts using NumPy on real data retrieved from the project database.
 
-Boolean masks instead of loops
+Each exercise focuses on vectorized computation and correct statistical reasoning, avoiding loops and hardcoded probabilities.
 
-Correct denominator selection in conditional probability
+### Covered topics include:
 
-Manual computation of PMF, expected value, variance, and standard deviation
+- Vectorized probability calculations using NumPy arrays  
+- Boolean masks to represent events  
+- Conditional probability and correct denominator selection  
+- Discrete random variables and probability mass functions  
+- Expected value, variance, and standard deviation  
+- Monte Carlo simulations  
+- Bayesian probability  
 
-Monte Carlo simulations using NumPy arrays
+All datasets are converted into NumPy arrays before analysis, ensuring that computations are efficient, scalable, and reproducible.
 
-Why it matters:
-Vectorization is faster, more readable, and scalable, and is standard in data science workflows.
+This section reinforces best practices in analytical computing, where data extraction, transformation, and statistical analysis are clearly separated.
 
-Why This Project Is Important for a Data Analyst
-This project reflects real analytical work rather than isolated exercises:
-
-Integrates SQL, Python, and NumPy
-
-Uses real relational data
-
-Emphasizes correctness and statistical reasoning
-
-Encourages explaining results, not only computing them
-
-Follows clean, modular, and reusable design principles
-
-It demonstrates readiness for roles in Data Analysis, Analytics Engineering, and data-driven backend development.
 
 How to Run the Project
 Install dependencies

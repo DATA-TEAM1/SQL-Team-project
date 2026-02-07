@@ -1,38 +1,46 @@
-# Person2_Conditional_Probability_with_NumPy_Masks.py
-
 import numpy as np
-import os
+from psycopg2.extras import RealDictCursor
+from server import get_connection, run_query
+
+"""
+Task 2 – Conditional Probability using NumPy Boolean Masks
+Data source: Supabase PostgreSQL (rentings + movies)
+"""
 
 # --------------------------------------------------
-# Load CSV (same directory as this script)
+# Load data from DB
 # --------------------------------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CSV_PATH = os.path.join(
-    BASE_DIR, "Supabase Snippet Movie metadata extraction.csv")
 
-raw_data = np.genfromtxt(
-    CSV_PATH,
-    delimiter=",",
-    skip_header=1,
-    dtype=str,
-    encoding="utf-8"
-)
+def load_data():
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            rows = run_query(cur, """
+                SELECT
+                    m.genre,
+                    m.runtime,
+                    r.rating
+                FROM public.rentings r
+                JOIN public.movies m
+                    ON r.movie_id = m.movie_id;
+            """)
 
-# --------------------------------------------------
-# Extract and clean columns
-# --------------------------------------------------
-genres = raw_data[:, 0]
+        genres = np.array([row["genre"] for row in rows], dtype=str)
+        runtimes = np.array([row["runtime"] for row in rows], dtype=int)
+        ratings = np.array(
+            [row["rating"] if row["rating"] is not None else np.nan for row in rows],
+            dtype=float
+        )
 
-runtimes = raw_data[:, 1].astype(int)
+        return genres, runtimes, ratings
 
-ratings = np.array(
-    [
-        float(x) if x.strip().lower() not in ("", "null", "nan")
-        else np.nan
-        for x in raw_data[:, 2]
-    ],
-    dtype=float
-)
+    finally:
+        if conn:
+            conn.close()
+
+
+genres, runtimes, ratings = load_data()
 
 print("Array shapes and dtypes:")
 print("genres:", genres.shape, genres.dtype)
@@ -40,41 +48,28 @@ print("runtimes:", runtimes.shape, runtimes.dtype)
 print("ratings:", ratings.shape, ratings.dtype)
 
 # --------------------------------------------------
-# Define Events (EXPLICITLY)
-# --------------------------------------------------
-# A: Movie genre is Comedy
-A = (genres == "Comedy")
-
-# B: Movie has high rating (>= 7)
-B = (ratings >= 7)
-
-# C: Movie is long (> 120 minutes)
-C = (runtimes > 120)
-
-# D: Movie has missing rating
-D = np.isnan(ratings)
-
-# --------------------------------------------------
-# Conditional Probability Function (SAFE)
+# Define events
 # --------------------------------------------------
 
+A = (genres == "Comedy")          
+B = (ratings >= 4)                
+C = (runtimes > 120)             
+D = np.isnan(ratings)             
 
-def conditional_probability(event_A, event_B):
-    """
-    Computes P(A | B) = P(A ∩ B) / P(B)
+# --------------------------------------------------
+# Conditional probability function
+# --------------------------------------------------
 
-    If P(B) = 0, the conditional probability is undefined,
-    so NaN is returned explicitly.
-    """
-    total_B = np.sum(event_B)
+def conditional_probability(A, B):
+    total_B = np.sum(B)
     if total_B == 0:
         return np.nan
-    return np.sum(event_A & event_B) / total_B
-
+    return np.sum(A & B) / total_B
 
 # --------------------------------------------------
-# Conditional Probabilities (5 required)
+# Required conditional probabilities
 # --------------------------------------------------
+
 p_comedy_given_high_rating = conditional_probability(A, B)
 p_high_rating_given_comedy = conditional_probability(B, A)
 
@@ -84,37 +79,19 @@ p_high_rating_given_long = conditional_probability(B, C)
 p_missing_rating_given_comedy = conditional_probability(D, A)
 
 # --------------------------------------------------
-# INTENTIONALLY INCORRECT example
+# Output
 # --------------------------------------------------
-# WRONG: Dividing by total number of movies
-wrong_p_comedy_given_high_rating = np.sum(A & B) / len(genres)
 
-# --------------------------------------------------
-# Output results
-# --------------------------------------------------
-print("\nCorrect Conditional Probabilities:")
-print("P(Comedy | High Rating):", p_comedy_given_high_rating)
-print("P(High Rating | Comedy):", p_high_rating_given_comedy)
-print("P(Long Movie | High Rating):", p_long_given_high_rating)
-print("P(High Rating | Long Movie):", p_high_rating_given_long)
-print("P(Missing Rating | Comedy):", p_missing_rating_given_comedy)
+def fmt(p):
+    if np.isnan(p):
+        return "N/A"
+    return f"{p * 100:.2f}%"
 
-print("\nIncorrect Conditional Probability Example:")
-print("WRONG P(Comedy | High Rating):", wrong_p_comedy_given_high_rating)
+print("\nConditional Probabilities:")
+print("P(Comedy | High Rating):", fmt(p_comedy_given_high_rating))
+print("P(High Rating | Comedy):", fmt(p_high_rating_given_comedy))
+print("P(Long Movie | High Rating):", fmt(p_long_given_high_rating))
+print("P(High Rating | Long Movie):", fmt(p_high_rating_given_long))
+print("P(Missing Rating | Comedy):", fmt(p_missing_rating_given_comedy))
 
-# --------------------------------------------------
-# Explanation (for grading)
-# --------------------------------------------------
-# Ratings contained non-numeric values ('null', empty).
-# These were converted to NaN using NumPy-safe logic.
-#
-# Conditional probability P(A | B) restricts the sample space
-# to only cases where B occurs.
-#
-# When P(B) = 0, the conditional probability is undefined,
-# so NaN is returned instead of dividing by zero.
-#
-# The incorrect example divides by total movies, which
-# computes a joint probability, not a conditional one.
-#
-# P(A | B) ≠ P(B | A)
+
