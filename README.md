@@ -1,114 +1,237 @@
-# Movie-Database
-This repository contains our **Team Group 1 Project**, focused on building and managing a **Movie Database** 
+# SQL & Python Data Analysis Project  
 
-Each team member is responsible for one key section of the project.  
-The goal is to demonstrate solid database design, automation with triggers, reusable SQL logic with functions, and insightful data analytics through queries and reports.
+Movie Database – End-to-End Data Analyst Practice
 
----
+## Project Overview
 
-## Team Members & Roles
+This repository contains a complete end-to-end data analysis project built around a Movie Database, combining:
 
-| Member | Git Branch | Part | Role Description |
-|:--------|:-------------|:------|:----------------|
-|  **Mohammad** | `feature/constraints` | **Part 1 – Relationships & Constraints** | 
-|  **Samuel** | `feature/triggers` | **Part 2 – Triggers** | 
-|  **Sayed** | `feature/views` | **Part 3 – Views** | 
-|  **Nadya** | `feature/functions` | **Part 4 – Stored Functions** | 
-|  **Nelson (Project Manager)** | `feature/analytical` | **Part 5 – Analytical Queries** | 
-|  **Abanoub** | `feature/reports` | **Part 6 – Reports (Summary Queries)** | 
+- SQL (PostgreSQL / Supabase) for data storage and querying  
+- Python for automation and analytics  
+- NumPy for vectorized probability calculations  
+- Statistical reasoning applied to real datasets  
 
-## Team Members & Roles (Main Project)
+The project simulates real-world Data Analyst workflows, from data extraction to analytical insight, emphasizing clean structure, correctness, and reproducibility.
 
-| Member                 | Git Branch          | Part                             | Role Description                    |
-|:-----------------------|:--------------------|:---------------------------------|:------------------------------------|
-| **Mohammad**           | `feature/constraints` | **Part 1 – Relationships & Constraints** |
-| **Samuel**             | `feature/triggers`    | **Part 2 – Triggers**           |
-| **Sayed**              | `feature/views`       | **Part 3 – Views**              |
-| **Nadya**              | `feature/functions`   | **Part 4 – Stored Functions**   |
-| **Nelson (Project Manager)** | `feature/analytical` | **Part 5 – Analytical Queries** |
-| **Abanoub**            | `feature/reports`     | **Part 6 – Reports (Summary Queries)** |
+## Learning Objectives
 
----
+This project demonstrates the ability to:
 
-### 24 November to 1 December Task
+- Query relational databases using SQL best practices  
+- Execute SQL safely from Python using a generic query runner  
+- Apply filtering, aggregation, grouping, joins, and HAVING clauses  
+- Implement error handling in data pipelines  
+- Use NumPy vectorization instead of loops for probability calculations  
+- Correctly compute conditional probability, expected value, variance, and Monte Carlo simulations  
+- Organize a project in a production-ready structure  
+- Explain analytical results in clear, non-technical language  
 
-Create `server.py` and inside this file create 6 functions to display all the table data.
+## Project Structure
 
-Tables: `actors`, `actsin`, `customers`, `log_activity`, `movies`, `rentings`  
-Views: `view_actor_summary`, `view_genre_stats`, `view_movie_summary`
+SQL-TEAM-PROJECT/
+│
+├── server.py # Main CLI application (SQL + Python integration)
+├── .env # Local DB credentials (not committed)
+├── README.md
+│
+├── SQL/ # SQL scripts (schema, views, queries)
+│
+├── probability/ # Pure Python probability exercises
+│ ├── person1_basic_probability.py
+│ ├── person2_conditional_probability.py
+│ ├── person3_independent_events.py
+│ ├── DiscreteRandVar.py
+│ ├── montecarlo_nelson.py
+│ └── person6_bayes_theorem.py
+│
+├── numpy/ # NumPy-based probability & statistics
+│ ├── person1_numpy_task1.py
+│ ├── Person2_Conditional_Probability_with_NumPy_Masks.py
+│ ├── person3_numpy_task3.py
+│ ├── DiscreteVarNumpy.py
+│ ├── montecarlonumpyT5_nelson.py
+│ ├── person6_numpy_task6.py
+│ ├── person7_numpy_task7.py
+│ └── Supabase Snippet Movie metadata extraction.csv
+│
+└── explanations/ # Written explanations and documentation
 
----
+## Core Design: One Generic SQL Runner
 
-## Team Members & Roles (Python Server Tasks)
+At the core of the project is a single reusable function:
 
-| Member                 | Git Branch                  | Task Description                                                             |
-|:-----------------------|:----------------------------|:-----------------------------------------------------------------------------|
-| **Mohammad**           | `feature/actors`            | Create a function that fetches the `actors` table and displays the results. |
-| **Samuel**             | `feature/actsin`            | Create a function that fetches the `actsin` table and displays the results. |
-| **Sayed**              | `feature/customers`         | Create a function that fetches the `customers` table and displays the results. |
-| **Nadya**              | `feature/log_activity`      | Create a function that fetches the `log_activity` table and displays the results. |
-| **Nelson (Project Manager)** | `feature/movies`      | Create a function that fetches the `movies` table and displays the results. |
-| **Abanoub**            | `feature/rentings`          | Create a function that fetches the `rentings` table and displays the results. |
-| **Krishma**            | `feature/view-actor-summary` | Create a function that fetches the `view_actor_summary` view and displays the results. |
+```python
+def run_query(cursor, query):
+        ...
+All SQL queries are executed through this function.
 
+Why this matters
+Enforces consistency across the project
 
-## Python Scripts for Movies and Rentings
+Centralizes error handling
 
-This project includes two simple Python scripts that connect to a Supabase
-PostgreSQL database using the psycopg2 library. Each script belongs to a
-different feature branch and retrieves data from a specific table.
+Prevents duplicated logic
 
-## Environment Variables
+Mirrors how real data services and APIs are designed
 
-Both scripts require a local `.env` file with the database credentials.
-Important:  
-The real `.env` file is **not uploaded** to GitHub for security reasons.
+This design reflects professional backend and analytics engineering practices.
 
-Example structure:
+SQL Tasks (server.py)
+All SQL tasks are accessible through a menu-driven CLI.
 
-user=YOUR_USER
-password=YOUR_PASSWORD
-host=YOUR_HOST
-port=5432
-dbname=postgres
-sslmode=require
+Task 2 – Basic SELECT Queries
+Purpose: Practice simple data retrieval.
 
-This file shows the required variables without exposing real credentials.
+Retrieve all movies
 
-# Server Script — Python Viewer for Supabase Database
+Retrieve all customers
 
-Overview
-server.py is a Python command-line tool that connects to a Supabase PostgreSQL database and displays the contents of several tables and one view. The script loads database credentials from a local .env file and uses a menu interface to let the user choose which dataset to print.
+Retrieve all actors
 
-Features
-Secure connection to Supabase PostgreSQL using environment variables
-Helper function to fetch rows with RealDictCursor
-Clean connection handling with automatic close
+Why it matters:
+These queries represent the foundation of exploratory data analysis.
 
-Menu-based CLI to display:
+Task 3 – WHERE Clause
+Purpose: Filter records using conditions.
 
-Actors
-Actsin
-Customers
-Log Activity
-Movies
-Rentings
-View: view_actor_summary
+Movies released after 2015
 
-Environment Variables
+Customers from Canada
 
+Rentings with rating greater than or equal to 4
 
-Running the Script:
+Why it matters:
+Filtering enables segmentation and targeted analysis.
 
-Install requirements:
-pip install psycopg2 python-dotenv
+Task 4 – Aggregation Functions (COUNT, AVG)
+Purpose: Summarize datasets.
 
-Start the script:
+Total number of movies
+
+Average renting price of movies
+
+Average rating from rentings
+
+Why it matters:
+Aggregations transform raw data into meaningful metrics and KPIs.
+
+Task 5 – GROUP BY
+Purpose: Analyze distributions.
+
+Number of movies per genre
+
+Number of customers per country
+
+Number of rentings per movie
+
+Why it matters:
+Grouping reveals patterns, trends, and imbalances in the data.
+
+Task 6 – JOIN Queries
+Purpose: Combine data from multiple tables.
+
+Movie titles with their average rating
+
+Number of movies each actor acted in
+
+Number of movies rented by each customer
+
+Why it matters:
+JOIN operations are essential for relational data analysis.
+
+Task 7 – HAVING Clause
+Purpose: Filter aggregated results.
+
+Genres with more than three movies
+
+Movies with average rating above four
+
+Customers who rented more than five movies
+
+Why it matters:
+HAVING enables filtering based on aggregated conditions rather than raw rows.
+
+Task 9 – Error Handling
+Purpose: Ensure robustness.
+
+Execute an invalid SQL query
+
+Catch exceptions
+
+Prevent application crashes
+
+Why it matters:
+Reliable data systems must fail gracefully.
+
+Probability (Pure Python)
+The probability/ folder focuses on statistical reasoning independent of databases.
+
+Topics covered include:
+
+Basic probability
+
+Conditional probability
+
+Independent vs dependent events
+
+Discrete random variables
+
+Monte Carlo simulations
+
+Bayes’ Theorem
+
+Why it matters:
+A Data Analyst must understand probability to correctly interpret data, not just compute values.
+
+NumPy Probability & Statistics
+The numpy/ folder applies probability concepts using vectorized NumPy operations.
+
+Key aspects include:
+
+Boolean masks instead of loops
+
+Correct denominator selection in conditional probability
+
+Manual computation of PMF, expected value, variance, and standard deviation
+
+Monte Carlo simulations using NumPy arrays
+
+Why it matters:
+Vectorization is faster, more readable, and scalable, and is standard in data science workflows.
+
+Why This Project Is Important for a Data Analyst
+This project reflects real analytical work rather than isolated exercises:
+
+Integrates SQL, Python, and NumPy
+
+Uses real relational data
+
+Emphasizes correctness and statistical reasoning
+
+Encourages explaining results, not only computing them
+
+Follows clean, modular, and reusable design principles
+
+It demonstrates readiness for roles in Data Analysis, Analytics Engineering, and data-driven backend development.
+
+How to Run the Project
+Install dependencies
+pip install psycopg2 python-dotenv numpy
+Configure environment variables
+Create a .env file with the following structure:
+
+USER=your_user
+PASSWORD=your_password
+HOST=your_host
+PORT=5432
+DBNAME=postgres
+SSLMODE=require
+Run the application
 python server.py
+Use the menu to navigate through SQL tasks, probability exercises, and NumPy-based analytics.
 
-You will see a menu where you can select which table or view to display.
+Collaboration Notes
+This project was developed collaboratively, with each team member responsible for specific components, following Git branching best practices and modular development principles.
 
-Purpose in the Project
-
-This script is part of the SQL Team Project and is used to quickly inspect database content from Python, without manually writing SQL queries. It also serves as a base for future Python integrations.
-
+Final Note
+This repository is intended as a portfolio-ready demonstration of applied data analysis skills, bridging theoretical knowledge with practical implementation.
