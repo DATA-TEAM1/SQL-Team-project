@@ -437,6 +437,42 @@ def handle_probability_menu():
         else:
             print("Invalid option.")
 
+def show_numpy_menu():
+    print("\n=== NUMPY PROBABILITY HOMEWORK ===")
+    print("1. Task 1 - Vectorized Probability Distributions (Person1)")
+    print("2. Task 2 - Conditional Probability with NumPy Masks (Person2)")
+    print("3. Task 3 - Independence Testing (Person3)")
+    print("4. Task 4 - Random Variables (DiscreteVarNumpy)")
+    print("5. Task 5 - Monte Carlo Simulation (Nelson)")
+    print("6. Task 6 - Bayes Theorem (Person6)")
+    print("7. Task 7 - Statistical Experiments & Reporting (Person7)")
+    print("0. Back")
+
+
+def handle_numpy_menu():
+    while True:
+        show_numpy_menu()
+        ch = input("\nEnter your choice: ").strip()
+
+        if ch == "0":
+            break
+        elif ch == "1":
+            _run_script("numpy/person1_numpy_task1.py")
+        elif ch == "2":
+            _run_script("numpy/Person2_Conditional_Probability_with_NumPy_Masks.py")
+        elif ch == "3":
+            _run_script("numpy/person3_numpy_task3.py")
+        elif ch == "4":
+            _run_script("numpy/DiscreteVarNumpy.py")
+        elif ch == "5":
+            _run_script("numpy/montecarlonumpyT5_nelson.py")
+        elif ch == "6":
+            _run_script("numpy/person6_numpy_task6.py")
+        elif ch == "7":
+            _run_script("numpy/person7_numpy_task7.py")
+        else:
+            print("Invalid option.")
+
 
 
 # ---------------------------------------------------------
@@ -484,6 +520,9 @@ def show_menu():
 
     print("\n--- Extra ---")
     print("P. Probability Homework (run scripts)")
+
+    print("\n--- Extra ---")
+    print("N. NumPy Probability Homework")
 
     print("\n0. Exit")
 
@@ -669,6 +708,9 @@ def _handle_choice(choice: str) -> bool:
     
     elif choice.upper() == "P":
         handle_probability_menu()
+
+    elif choice.upper() == "N":
+        handle_numpy_menu()
 
     else:
         print("Invalid option, try again.")

@@ -1,24 +1,34 @@
 import numpy as np
+from psycopg2.extras import RealDictCursor
 
-"""
-Random Variables & Linear Algebra
-Discrete Random Variables
-
-All numerical work uses NumPy.
-No hardcoded probabilities.
-No loops unless unavoidable.
-No np.mean, np.var, scipy, sklearn, pandas stats.
-"""
+# Importa tus helpers del server (misma lógica que ya usas en otros scripts)
+from server import get_connection, run_query
 
 # =====================================================
-# PART 1: RANDOM VARIABLE X — MOVIE RATINGS
+# PART 1: RANDOM VARIABLE X — MOVIE RATINGS (FROM DB)
 # =====================================================
 
-# X = rating of a randomly selected movie
-# Load raw data (example: from CSV or database extraction)
+def load_ratings_from_db():
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            rows = run_query(cur, """
+                SELECT rating
+                FROM public.rentings
+                WHERE rating IS NOT NULL;
+            """)
+        ratings_arr = np.fromiter((r["rating"] for r in rows), dtype=float)
+        return ratings_arr
+    finally:
+        if conn:
+            conn.close()
 
-ratings = np.loadtxt("movie_ratings.csv")  
-# ratings is a 1D NumPy array of raw rating values
+ratings = load_ratings_from_db()
+
+if ratings.size == 0:
+    print("No ratings found in the database (rentings.rating is empty or NULL).")
+    raise SystemExit(0)
 
 print("Raw ratings sample:", ratings[:10])
 
@@ -39,8 +49,8 @@ print(counts)
 # PMF = counts / total observations
 # -----------------------------------------------------
 
-total_movies = ratings.size
-pmf_X = counts / total_movies
+total_obs = ratings.size
+pmf_X = counts / total_obs
 
 print("\nProbability Mass Function P(X = x):")
 print(pmf_X)
@@ -56,7 +66,7 @@ print("\nExpected Value E(X):", expected_X)
 
 print(
     "\nInterpretation:\n"
-    "If we repeatedly select a movie at random from the database,\n"
+    "If we repeatedly select a rating at random from the database,\n"
     "the long-run average rating we expect to observe is {:.2f}.\n"
     "This does NOT mean most movies have this rating — it is a weighted average."
     .format(expected_X)
@@ -103,3 +113,4 @@ print(
     "\nManual verification (partial sum of E(X) using first 3 values):",
     manual_check
 )
+
